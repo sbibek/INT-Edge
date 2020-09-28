@@ -17,6 +17,7 @@ typedef bit<48> macAddr_t;
 typedef bit<32> ip4Addr_t;
 typedef bit<32> switchID_t;
 typedef bit<32> qdepth_t;
+typedef bit<32> hoplatency_t;
 
 header ethernet_t {
     macAddr_t dstAddr;
@@ -53,6 +54,7 @@ header mri_t {
 header switch_t {
     switchID_t  swid;
     qdepth_t    qdepth;
+    hoplatency_t hoplatency;
 }
 
 struct ingress_metadata_t {
@@ -200,10 +202,11 @@ control MyEgress(inout headers hdr,
         hdr.swtraces[0].setValid();
         hdr.swtraces[0].swid = swid;
         hdr.swtraces[0].qdepth = (qdepth_t)standard_metadata.deq_qdepth;
+        hdr.swtraces[0].hoplatency = (hoplatency_t) standard_metadata.deq_timedelta;
 
-        hdr.ipv4.ihl = hdr.ipv4.ihl + 2;
-        hdr.ipv4_option.optionLength = hdr.ipv4_option.optionLength + 8; 
-	hdr.ipv4.totalLen = hdr.ipv4.totalLen + 8;
+        hdr.ipv4.ihl = hdr.ipv4.ihl + 3;
+        hdr.ipv4_option.optionLength = hdr.ipv4_option.optionLength + 12; 
+    	hdr.ipv4.totalLen = hdr.ipv4.totalLen + 12;
     }
 
     table swtrace {

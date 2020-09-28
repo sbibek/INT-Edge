@@ -28,12 +28,12 @@ def get_if():
 
 class SwitchTrace(Packet):
     fields_desc = [ IntField("swid", 0),
-                  IntField("qdepth", 0)]
+                  IntField("hop_latency", 0)]
     def extract_padding(self, p):
                 return "", p
 
 class IPOption_MRI(IPOption):
-    name = "MRI"
+    name = "INT INFO"
     option = 31
     fields_desc = [ _IPOption_HDR,
                     FieldLenField("length", None, fmt="B",
