@@ -26,28 +26,8 @@ def get_if():
         exit(1)
     return iface
 
-class SwitchTrace(Packet):
-    fields_desc = [ IntField("swid", 0),
-                  IntField("hop_latency", 0)]
-    def extract_padding(self, p):
-                return "", p
-
-class IPOption_MRI(IPOption):
-    name = "INT INFO"
-    option = 31
-    fields_desc = [ _IPOption_HDR,
-                    FieldLenField("length", None, fmt="B",
-                                  length_of="swtraces",
-                                  adjust=lambda pkt,l:l*2+4),
-                    ShortField("count", 0),
-                    PacketListField("swtraces",
-                                   [],
-                                   SwitchTrace,
-                                   count_from=lambda pkt:(pkt.count*1)) ]
-
 
 def getPacket(iface, addr, path):
-    
     return Ether(src=get_if_hwaddr(iface), dst="ff:ff:ff:ff:ff:ff") / IP(
         dst=addr)/ UDP(
             dport=4321, sport=1234) / Raw(load=struct.pack('>HH', path, 0)) 
@@ -55,27 +35,16 @@ def getPacket(iface, addr, path):
 
 
 def main():
-
-    if len(sys.argv)<3:
-        print 'pass 2 arguments: <destination> "<message>"'
+    if len(sys.argv)<2:
+        print 'pass 2 arguments: <destination> "<no of messages>"'
         exit(1)
 
     addr = socket.gethostbyname(sys.argv[1])
     iface = get_if()
-
-    pkt = Ether(src=get_if_hwaddr(iface), dst="ff:ff:ff:ff:ff:ff") / IP(
-        dst=addr)/ UDP(
-            dport=4321, sport=1234) / Raw(load=struct.pack('HH', 0, 0)) 
-
- #   pkt = Ether(src=get_if_hwaddr(iface), dst="ff:ff:ff:ff:ff:ff") / IP(
- #       dst=addr, options = IPOption_MRI(count=2,
- #           swtraces=[SwitchTrace(swid=0,qdepth=0), SwitchTrace(swid=1,qdepth=0)])) / UDP(
- #           dport=4321, sport=1234) / sys.argv[2]
-    pkt.show2()
-    #hexdump(pkt)
     try:
-      for i in range(int(sys.argv[3])):
-        sendp(getPacket(iface, addr, i%2), iface=iface)
+      for i in range(int(sys.argv[2])):
+        sendp(getPacket(iface, addr, 0), iface=iface)
+        sendp(getPacket(iface, addr, 1), iface=iface)
         sleep(1)
     except KeyboardInterrupt:
         raise
