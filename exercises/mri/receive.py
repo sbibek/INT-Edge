@@ -21,12 +21,12 @@ def get_if():
     return iface
 
 def perHopPayload(data):
-    print "switch id: {}, qdepth: {}, hop latency: {}".format(*data)
+    print "switch id: {}, qdepth: {}, hop latency: {}, link latency: {}".format(*data)
 
 
 def handle_pkt(pkt):
-    format = ">III"
-    messageLen = 12
+    format = ">IIII"
+    messageLen = 16
 
     payload = pkt[UDP].payload.load
     hops = struct.unpack(">H",payload[0:2])[0]
@@ -34,7 +34,7 @@ def handle_pkt(pkt):
 
     for i in range(hops):
         perHopPayload(struct.unpack(format,payload[:messageLen]))
-        payload = payload[messageLen:]
+        payload = payload[messageLen+6:]
 #    hexdump(pkt)
     print "--------------------------------------------------"
     sys.stdout.flush()
