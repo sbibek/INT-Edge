@@ -60,6 +60,10 @@ header mri_t {
     bit<16>  count;
 }
 
+header mri_fork_t {
+    bit<16> fork;
+}
+
 header switch_intrinsic_t {
     switchID_t  swid;
     qdepth_t    qdepth;
@@ -94,6 +98,7 @@ struct headers {
     ethernet_t         ethernet;
     ipv4_t             ipv4;
     udp_t              udp;
+    mri_fork_t         mri_fork;
     mri_t              mri;
     switch_t[MAX_HOPS] swtraces;
 }
@@ -144,6 +149,7 @@ parser MyParser(packet_in packet,
     }
 
     state parse_mri {
+        packet.extract(hdr.mri_fork);
         packet.extract(hdr.mri);
         meta.parser_metadata.remaining = hdr.mri.count;
         transition select(meta.parser_metadata.remaining) {
@@ -193,6 +199,7 @@ control MyIngress(inout headers hdr,
     table ipv4_lpm {
         key = {
             hdr.ipv4.dstAddr: lpm;
+            // hdr.mri_fork: exact;
         }
         actions = {
             ipv4_forward;
@@ -202,7 +209,7 @@ control MyIngress(inout headers hdr,
         size = 1024;
         default_action = NoAction();
     }
-    
+
     apply {
         if (hdr.ipv4.isValid()) {
             ipv4_lpm.apply();
@@ -296,6 +303,7 @@ control MyDeparser(packet_out packet, in headers hdr) {
         packet.emit(hdr.ipv4);
         // packet.emit(hdr.ipv4_option);
         packet.emit(hdr.udp);
+        packet.emit(hdr.mri_fork);
         packet.emit(hdr.mri);
         packet.emit(hdr.swtraces);                 
     }

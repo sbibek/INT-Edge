@@ -29,8 +29,9 @@ def handle_pkt(pkt):
     messageLen = 16
 
     payload = pkt[UDP].payload.load
-    hops = struct.unpack(">H",payload[0:2])[0]
-    payload = payload[2:]
+    fork, hops = struct.unpack(">HH",payload[0:4])
+    print "path: {}, total hops: {}".format(fork, hops)
+    payload = payload[4:]
 
     for i in range(hops):
         perHopPayload(struct.unpack(format,payload[:messageLen]))

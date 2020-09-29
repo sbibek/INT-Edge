@@ -46,6 +46,14 @@ class IPOption_MRI(IPOption):
                                    count_from=lambda pkt:(pkt.count*1)) ]
 
 
+def getPacket(iface, addr, path):
+    
+    return Ether(src=get_if_hwaddr(iface), dst="ff:ff:ff:ff:ff:ff") / IP(
+        dst=addr)/ UDP(
+            dport=4321, sport=1234) / Raw(load=struct.pack('>HH', path, 0)) 
+
+
+
 def main():
 
     if len(sys.argv)<3:
@@ -57,7 +65,7 @@ def main():
 
     pkt = Ether(src=get_if_hwaddr(iface), dst="ff:ff:ff:ff:ff:ff") / IP(
         dst=addr)/ UDP(
-            dport=4321, sport=1234) / Raw(load=struct.pack('H', 0)) 
+            dport=4321, sport=1234) / Raw(load=struct.pack('HH', 0, 0)) 
 
  #   pkt = Ether(src=get_if_hwaddr(iface), dst="ff:ff:ff:ff:ff:ff") / IP(
  #       dst=addr, options = IPOption_MRI(count=2,
@@ -67,7 +75,7 @@ def main():
     #hexdump(pkt)
     try:
       for i in range(int(sys.argv[3])):
-        sendp(pkt, iface=iface)
+        sendp(getPacket(iface, addr, i%2), iface=iface)
         sleep(1)
     except KeyboardInterrupt:
         raise
