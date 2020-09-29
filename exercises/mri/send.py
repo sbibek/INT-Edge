@@ -8,7 +8,7 @@ import struct
 
 from scapy.all import sendp, send, hexdump, get_if_list, get_if_hwaddr
 from scapy.all import Packet, IPOption
-from scapy.all import Ether, IP, UDP
+from scapy.all import Ether, IP, UDP, Raw
 from scapy.all import IntField, FieldListField, FieldLenField, ShortField, PacketListField
 from scapy.layers.inet import _IPOption_HDR
 
@@ -56,9 +56,8 @@ def main():
     iface = get_if()
 
     pkt = Ether(src=get_if_hwaddr(iface), dst="ff:ff:ff:ff:ff:ff") / IP(
-        dst=addr, options = IPOption_MRI(count=0,
-            swtraces=[])) / UDP(
-            dport=4321, sport=1234) / sys.argv[2]
+        dst=addr)/ UDP(
+            dport=4321, sport=1234) / Raw(load=struct.pack('H', 0)) 
 
  #   pkt = Ether(src=get_if_hwaddr(iface), dst="ff:ff:ff:ff:ff:ff") / IP(
  #       dst=addr, options = IPOption_MRI(count=2,

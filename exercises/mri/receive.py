@@ -20,30 +20,23 @@ def get_if():
         exit(1)
     return iface
 
-class SwitchTrace(Packet):
-    fields_desc = [ IntField("swid", 0),
-                    IntField("qdepth", 0),
-                  IntField("hop_latency", 0)]
-    def extract_padding(self, p):
-                return "", p
+def perHopPayload(data):
+    print "switch id: {}, qdepth: {}, hop latency: {}".format(*data)
 
-class IPOption_MRI(IPOption):
-    name = "INT"
-    option = 31
-    fields_desc = [ _IPOption_HDR,
-                    FieldLenField("length", None, fmt="B",
-                                  length_of="swtraces",
-                                  adjust=lambda pkt,l:l*2+4),
-                    ShortField("count", 0),
-                    PacketListField("swtraces",
-                                   [],
-                                   SwitchTrace,
-                                   count_from=lambda pkt:(pkt.count*1)) ]
 
 def handle_pkt(pkt):
-    print "got a packet"
-    pkt.show2()
+    format = ">III"
+    messageLen = 12
+
+    payload = pkt[UDP].payload.load
+    hops = struct.unpack(">H",payload[0:2])[0]
+    payload = payload[2:]
+
+    for i in range(hops):
+        perHopPayload(struct.unpack(format,payload[:messageLen]))
+        payload = payload[messageLen:]
 #    hexdump(pkt)
+    print "--------------------------------------------------"
     sys.stdout.flush()
 
 

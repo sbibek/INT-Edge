@@ -47,6 +47,13 @@ header ipv4_option_t {
     bit<8> optionLength;
 }
 
+header udp_t {
+    bit<16> srcPort;
+    bit<16> dstPort;
+    bit<16> length_;
+    bit<16> checksum;
+}
+
 header mri_t {
     bit<16>  count;
 }
@@ -73,7 +80,12 @@ struct metadata {
 struct headers {
     ethernet_t         ethernet;
     ipv4_t             ipv4;
-    ipv4_option_t      ipv4_option;
+    udp_t              udp;
+    mri_t              mri;
+    switch_t[MAX_HOPS] swtraces;
+}
+
+struct __payload {
     mri_t              mri;
     switch_t[MAX_HOPS] swtraces;
 }
@@ -104,16 +116,16 @@ parser MyParser(packet_in packet,
     state parse_ipv4 {
         packet.extract(hdr.ipv4);
         verify(hdr.ipv4.ihl >= 5, error.IPHeaderTooShort);
-        transition select(hdr.ipv4.ihl) {
-            5             : accept;
-            default       : parse_ipv4_option;
+        transition select(hdr.ipv4.protocol) {
+            UDP_PROTOCOL             : parse_udp;
+            default       : accept;
         }
     }
 
-    state parse_ipv4_option {
-        packet.extract(hdr.ipv4_option);
-        transition select(hdr.ipv4_option.option) {
-            IPV4_OPTION_MRI: parse_mri;
+    state parse_udp {
+        packet.extract(hdr.udp);
+        transition select(hdr.udp.dstPort) {
+            4321: parse_mri;
             default: accept;
         }
     }
@@ -193,19 +205,21 @@ control MyEgress(inout headers hdr,
                  inout metadata meta,
                  inout standard_metadata_t standard_metadata) {
     action add_swtrace(switchID_t swid) { 
-        hdr.mri.count = hdr.mri.count + 1;
-        hdr.swtraces.push_front(1);
+         hdr.mri.count = hdr.mri.count + 1;
+         hdr.swtraces.push_front(1);
         // According to the P4_16 spec, pushed elements are invalid, so we need
         // to call setValid(). Older bmv2 versions would mark the new header(s)
         // valid automatically (P4_14 behavior), but starting with version 1.11,
         // bmv2 conforms with the P4_16 spec.
-        hdr.swtraces[0].setValid();
-        hdr.swtraces[0].swid = swid;
-        hdr.swtraces[0].qdepth = (qdepth_t)standard_metadata.deq_qdepth;
-        hdr.swtraces[0].hoplatency = (hoplatency_t) standard_metadata.deq_timedelta;
+         hdr.swtraces[0].setValid();
+         hdr.swtraces[0].swid = swid;
+         hdr.swtraces[0].qdepth = (qdepth_t)standard_metadata.deq_qdepth;
+         hdr.swtraces[0].hoplatency = (hoplatency_t) standard_metadata.deq_timedelta;
 
-        hdr.ipv4.ihl = hdr.ipv4.ihl + 3;
-        hdr.ipv4_option.optionLength = hdr.ipv4_option.optionLength + 12; 
+         hdr.udp.length_ = hdr.udp.length_ + 12;
+
+         //hdr.ipv4.ihl = hdr.ipv4.ihl + 3;
+         //hdr.ipv4_option.optionLength = hdr.ipv4_option.optionLength + 12; 
     	hdr.ipv4.totalLen = hdr.ipv4.totalLen + 12;
     }
 
@@ -256,7 +270,8 @@ control MyDeparser(packet_out packet, in headers hdr) {
     apply {
         packet.emit(hdr.ethernet);
         packet.emit(hdr.ipv4);
-        packet.emit(hdr.ipv4_option);
+        // packet.emit(hdr.ipv4_option);
+        packet.emit(hdr.udp);
         packet.emit(hdr.mri);
         packet.emit(hdr.swtraces);                 
     }
