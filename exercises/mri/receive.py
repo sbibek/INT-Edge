@@ -8,6 +8,9 @@ from scapy.all import PacketListField, ShortField, IntField, LongField, BitField
 from scapy.all import IP, UDP, Raw
 from scapy.layers.inet import _IPOption_HDR
 
+from _process import ProcessMetrics
+
+
 def get_if():
     ifs=get_if_list()
     iface=None
@@ -20,33 +23,33 @@ def get_if():
         exit(1)
     return iface
 
-def perHopPayload(data):
-    print "switch id: {}, qdepth: {}, hop latency: {}, link latency: {}".format(*data)
 
 
-def handle_pkt(pkt):
+def handle_pkt(pkt, processor):
     format = ">IIII"
     messageLen = 16
 
     payload = pkt[UDP].payload.load
     fork, hops = struct.unpack(">HH",payload[0:4])
-    print "path: {}, total hops: {}".format(fork, hops)
+    # print "path: {}, total hops: {}".format(fork, hops)
     payload = payload[4:]
 
+    data = []
     for i in range(hops):
-        perHopPayload(struct.unpack(format,payload[:messageLen]))
+        data.insert(0, struct.unpack(format,payload[:messageLen]))
         payload = payload[messageLen+6:]
 #    hexdump(pkt)
-    print "--------------------------------------------------"
+    processor.process(data)
     sys.stdout.flush()
 
 
 def main():
     iface = 'eth0'
+    processMetrics = ProcessMetrics()
     print "sniffing on %s" % iface
     sys.stdout.flush()
     sniff(filter="udp and port 4321", iface = iface,
-          prn = lambda x: handle_pkt(x))
+          prn = lambda x: handle_pkt(x, processMetrics))
 
 if __name__ == '__main__':
     main()
