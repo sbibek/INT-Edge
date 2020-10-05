@@ -23,9 +23,18 @@ def get_if():
         exit(1)
     return iface
 
-
-
+import time
+lastTime = None
 def handle_pkt(pkt, processor):
+    global lastTime
+    diff = 0
+    if lastTime == None:
+        lastTime = time.time()
+    else:
+        curr = time.time()
+        diff = curr - lastTime
+        lastTime = curr
+
     format = ">IIII"
     messageLen = 16
 
@@ -39,7 +48,7 @@ def handle_pkt(pkt, processor):
         data.insert(0, struct.unpack(format,payload[:messageLen]))
         payload = payload[messageLen+6:]
 #    hexdump(pkt)
-    processor.process(data)
+    processor.process(data, diff)
     sys.stdout.flush()
 
 
