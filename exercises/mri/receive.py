@@ -9,6 +9,7 @@ from scapy.all import IP, UDP, Raw
 from scapy.layers.inet import _IPOption_HDR
 
 from _process import ProcessMetrics
+from _metrics import Metrics
 
 
 def get_if():
@@ -26,6 +27,9 @@ def get_if():
 import time
 lastTime = None
 def handle_pkt(pkt, processor):
+    if pkt[UDP].sport != 4321 and pkt[UDP].dport != 4321:
+        return
+
     global lastTime
     diff = 0
     if lastTime == None:
@@ -54,7 +58,8 @@ def handle_pkt(pkt, processor):
 
 def main():
     iface = 'eth0'
-    processMetrics = ProcessMetrics()
+    processMetrics = Metrics()
+    processMetrics.start()
     print "sniffing on %s" % iface
     sys.stdout.flush()
     sniff(filter="udp and port 4321", iface = iface,

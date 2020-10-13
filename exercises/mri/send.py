@@ -45,7 +45,6 @@ def main():
       for i in range(int(sys.argv[2])):
         sendp(getPacket(iface, addr, 0), iface=iface)
         # sendp(getPacket(iface, addr, 1), iface=iface)
-        sleep(0.1)
     except KeyboardInterrupt:
         raise
 

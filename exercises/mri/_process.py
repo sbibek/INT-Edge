@@ -34,7 +34,7 @@ class ProcessMetrics:
         os.system('clear')
         print('total probes {}, last updated {}s (avg {}s)'.format(self.totalProbes, diff, self.totalUpdateTime/self.totalProbes))
         for key in self.perHopStats:
-            print "swid: {}, qdepth: {}, hopLatency: {} microsecs (avg: {})".format(key, self.perHopStats[key]["qdepth"]["latest"], self.perHopStats[key]["hopLatency"]["latest"], self.perHopStats[key]["hopLatency"]["total"]//self.totalProbes)
+            print "swid: {}, qdepth: {} (avg: {}), hopLatency: {} microsecs (avg: {})".format(key, self.perHopStats[key]["qdepth"]["latest"], self.perHopStats[key]["qdepth"]["total"]//self.totalProbes, self.perHopStats[key]["hopLatency"]["latest"], self.perHopStats[key]["hopLatency"]["total"]//self.totalProbes)
 
         for key in self.linkLatency:
             print "{}->{} linklatency: {} microsecs(avg: {}) ".format(key[0], key[1], self.linkLatency[key]['latest'], self.linkLatency[key]['total']/self.totalProbes)
