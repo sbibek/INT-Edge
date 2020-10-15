@@ -225,6 +225,10 @@ control MyEgress(inout headers hdr,
                  inout metadata meta,
                  inout standard_metadata_t standard_metadata) {
     action add_swtrace(switchID_t swid) { 
+         if(!hdr.mri.isValid()) {
+             hdr.mri.count = 0
+         }
+
          hdr.mri.count = hdr.mri.count + 1;
          hdr.swtraces.push_front(1);
         // According to the P4_16 spec, pushed elements are invalid, so we need
