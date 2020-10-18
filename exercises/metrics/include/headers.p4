@@ -5,6 +5,7 @@ typedef bit<32> switchID_t;
 typedef bit<32> qdepth_t;
 typedef bit<32> hoplatency_t;
 typedef bit<32> linklatency_t;
+typedef bit<32> timediff_t;
 typedef bit<48> timestamp_t;
 
 header ethernet_t {
@@ -60,12 +61,17 @@ header switch_intrinsic_t {
 
 
 header switch_t {
-    switchID_t  swid;
-    qdepth_t    qdepth;
-    hoplatency_t hoplatency;
-    linklatency_t linklatency; 
-    timestamp_t refTimestamp;
+    bit<32> swid;
+    bit<32> total_packets;
+    bit<32> elapsed_time;
+    bit<32> total_hop_latency;
+    bit<32> min_hop_latency;
+    bit<32> max_hop_latency;
+    bit<32> total_qdepth;
+    bit<32> min_qdepth;
+    bit<32> max_qdepth; 
 }
+
 
 struct ingress_metadata_t {
     bit<16>  count;
