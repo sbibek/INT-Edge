@@ -5,60 +5,34 @@ import os
 class Metrics(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-        self.history = [] 
-        self.index = 0
+        self.total_reported = 0
 
-        self.metrics = []
-
-        self.totalUpdateTime = 0
+        self.log = {1:open('/home/p4/logs/1.csv', 'a'),2:open('/home/p4/logs/2.csv', 'a')}
+    
     
     def process(self, _data, diff):
-        entry = {}
+        self.total_reported += 1
+        os.system('clear')
         for data in _data:
-            swid, qdepth, hopLatency, linkLatency = data
-            entry[swid] = {"swid": swid, "qdepth": qdepth, "hoplatency": hopLatency, "linklatency":linkLatency}
-        self.history.append(entry)
-        self.totalUpdateTime += diff
+            swid, totalPackets, elapsedTime, totalHopLatency, minHopLatency, maxHopLatency, totalQdepth, minQdepth, maxQdepth = data
+            et = round(elapsedTime/(1000000.0),3)
+            avgHopLatency = round(totalHopLatency/(totalPackets*1.0),4)
+            avgQOccu, minQ, maxQ = round(totalQdepth/(totalPackets * 64.0)*100,3), round(minQdepth/64.0*100,2), round(maxQdepth/64.0*100,2)
+            print "swid: {}, total packets: {}, elapsed time: {}s ({})".format(swid, totalPackets, et, self.total_reported)
+            print "     Avg hop latency(microsec): {}, min: {}, max: {}".format(avgHopLatency, minHopLatency, maxHopLatency)
+            print "     Avg Q occupany(%): {}, min: {}, max: {}".format(avgQOccu, minQ, maxQ)
+            self.log[swid].write("{}, {}, {}, {}, {}, {}, {}, {}\n".format(totalPackets, et, avgHopLatency, minHopLatency, maxHopLatency, avgQOccu, minQ, maxQ))
+        
+        if(self.total_reported >= 100): 
+            self.log[1].close()
+            self.log[2].close()
+            exit(0)
+        
+        
     
     def generateMetrics(self):
-        total = len(self.history)
-        data = self.history[self.index:total]
-        updatetime = self.totalUpdateTime
-        self.totalUpdateTime = 0
-        self.index = total
-
-        current = {}
-        for entry in data:
-            for swid in entry:
-                sinfo = entry[swid]
-                if swid not in current:
-                    current[swid] = {"hoplatency": {"max": sinfo["hoplatency"], "min": sinfo["hoplatency"], "total": 0, "avg": 0}, "qdepth": {"max": sinfo["qdepth"], "min": sinfo["qdepth"], "total": 0, "avg": 0} }
-
-                # now lets update the details 
-                instance = current[swid]
-                instance["hoplatency"]["total"] += sinfo["hoplatency"]
-
-                if sinfo["hoplatency"] > instance["hoplatency"]["max"]:
-                    instance["hoplatency"]["max"] = sinfo["hoplatency"]
-
-                if sinfo["hoplatency"] < instance["hoplatency"]["min"]:
-                    instance["hoplatency"]["min"] = sinfo["hoplatency"]
-                
-                instance["qdepth"]["total"] += sinfo["qdepth"]
-
-                if sinfo["qdepth"] > instance["qdepth"]["max"]:
-                    instance["qdepth"]["max"] = sinfo["qdepth"]
-
-                if sinfo["qdepth"] < instance["qdepth"]["min"]:
-                    instance["qdepth"]["min"] = sinfo["qdepth"]
+        pass
         
-        if len(current) > 0:
-            for swid in current:
-                instance = current[swid]
-                instance["hoplatency"]["avg"] = instance["hoplatency"]["total"] / len(data)
-                instance["qdepth"]["avg"] = instance["qdepth"]["total"] / len(data)
-            # self.metrics.append(current)
-            self.__log(len(data), updatetime, current) 
 
     def __log(self, totalProbes, totalUpdateTime, current ):
         os.system('clear')
@@ -73,7 +47,7 @@ class Metrics(threading.Thread):
     def run(self):
         while True:
             try:
-                time.sleep(1)
+                time.sleep(0.05)
                 self.generateMetrics()
             except:
                 break

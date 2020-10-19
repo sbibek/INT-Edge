@@ -27,7 +27,7 @@ def get_if():
 import time
 lastTime = None
 def handle_pkt(pkt, processor):
-    if pkt[UDP].sport != 4321 and pkt[UDP].dport != 4321:
+    if UDP not in pkt or ( pkt[UDP].sport != 4321 and pkt[UDP].dport != 4321):
         return
 
     global lastTime
@@ -39,8 +39,8 @@ def handle_pkt(pkt, processor):
         diff = curr - lastTime
         lastTime = curr
 
-    format = ">IIII"
-    messageLen = 16
+    format = ">IIIIIIIII"
+    messageLen = 36
 
     payload = pkt[UDP].payload.load
     fork, hops = struct.unpack(">HH",payload[0:4])
@@ -50,7 +50,7 @@ def handle_pkt(pkt, processor):
     data = []
     for i in range(hops):
         data.insert(0, struct.unpack(format,payload[:messageLen]))
-        payload = payload[messageLen+6:]
+        payload = payload[messageLen:]
 #    hexdump(pkt)
     processor.process(data, diff)
     sys.stdout.flush()
@@ -59,7 +59,7 @@ def handle_pkt(pkt, processor):
 def main():
     iface = 'eth0'
     processMetrics = Metrics()
-    processMetrics.start()
+    # processMetrics.start()
     print "sniffing on %s" % iface
     sys.stdout.flush()
     sniff(filter="udp and port 4321", iface = iface,
