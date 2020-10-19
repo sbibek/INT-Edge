@@ -7,6 +7,7 @@
 #include "include/parser.p4"
 #include "include/checksum.p4"
 
+register<bit<1>>(1) init;
 register<bit<32>>(1) total_packets;
 // [0] = total, [1] = min, [2] = max
 register<bit<32>>(3) hop_latency_t;
@@ -54,6 +55,7 @@ control MyEgress(inout headers hdr,
                  inout metadata meta,
                  inout standard_metadata_t standard_metadata) {
     action add_swtrace(switchID_t swid) { 
+
          hdr.mri.count = hdr.mri.count + 1;
          hdr.swtraces.push_front(1);
         // According to the P4_16 spec, pushed elements are invalid, so we need
@@ -103,6 +105,7 @@ control MyEgress(inout headers hdr,
         hdr.udp.length_ = hdr.udp.length_ + 36;
     	hdr.ipv4.totalLen = hdr.ipv4.totalLen + 36;
 
+
     }
 
     table swtrace {
@@ -114,6 +117,10 @@ control MyEgress(inout headers hdr,
     }
     
     apply {
+
+        @atomic {
+        bit<1> isInit;
+        init.read(isInit, 0);
         // we update the registers here everytime
         bit<32> current_packets;
         total_packets.read(current_packets, 0);
@@ -126,7 +133,7 @@ control MyEgress(inout headers hdr,
 
         bit<32> min_hlt;
         hop_latency_t.read(min_hlt , 1);
-        if(min_hlt == 0) {
+        if(isInit == 0) {
             hop_latency_t.write(1, (bit<32>)standard_metadata.deq_timedelta);
         } else if(min_hlt > (bit<32>)standard_metadata.deq_timedelta) {
             hop_latency_t.write(1, (bit<32>)standard_metadata.deq_timedelta);
@@ -134,7 +141,7 @@ control MyEgress(inout headers hdr,
 
         bit<32> max_hlt;
         hop_latency_t.read(max_hlt , 2);
-        if(max_hlt == 0) {
+        if(isInit == 0) {
             hop_latency_t.write(2, (bit<32>)standard_metadata.deq_timedelta);
         } else if(max_hlt < (bit<32>)standard_metadata.deq_timedelta) {
             hop_latency_t.write(2, (bit<32>)standard_metadata.deq_timedelta);
@@ -148,7 +155,7 @@ control MyEgress(inout headers hdr,
 
         bit<32> min_qdt;
         q_depth_t.read(min_qdt , 1);
-        if(min_qdt == 0) {
+        if(isInit == 0) {
             q_depth_t.write(1, (bit<32>)standard_metadata.deq_qdepth);
         } else if(min_qdt > (bit<32>)standard_metadata.deq_qdepth) {
             q_depth_t.write(1, (bit<32>)standard_metadata.deq_qdepth);
@@ -156,7 +163,7 @@ control MyEgress(inout headers hdr,
 
         bit<32> max_qdt;
         q_depth_t.read(max_qdt , 2);
-        if(max_qdt == 0) {
+        if(isInit == 0) {
             q_depth_t.write(2, (bit<32>)standard_metadata.deq_qdepth);
         } else if(max_qdt < (bit<32>)standard_metadata.deq_qdepth) {
             q_depth_t.write(2, (bit<32>)standard_metadata.deq_qdepth);
@@ -167,11 +174,17 @@ control MyEgress(inout headers hdr,
         if(current_ts == 0) {
             last_checked.write(0, standard_metadata.egress_global_timestamp);
         }
-        //----------------------------
 
+        // not its init
+        init.write(0, (bit<1>)1);
+        //----------------------------
 
         if (hdr.mri.isValid()) {
             swtrace.apply();
+        } else {
+
+        }
+
         }
     }
 }

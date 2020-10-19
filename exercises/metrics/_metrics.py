@@ -20,13 +20,13 @@ class Metrics(threading.Thread):
             avgQOccu, minQ, maxQ = round(totalQdepth/(totalPackets * 64.0)*100,3), round(minQdepth/64.0*100,2), round(maxQdepth/64.0*100,2)
             print "swid: {}, total packets: {}, elapsed time: {}s ({})".format(swid, totalPackets, et, self.total_reported)
             print "     Avg hop latency(microsec): {}, min: {}, max: {}".format(avgHopLatency, minHopLatency, maxHopLatency)
-            print "     Avg Q occupany(%): {}, min: {}, max: {}".format(avgQOccu, minQ, maxQ)
-            self.log[swid].write("{}, {}, {}, {}, {}, {}, {}, {}\n".format(totalPackets, et, avgHopLatency, minHopLatency, maxHopLatency, avgQOccu, minQ, maxQ))
+            print "     Avg Q occupany(%): {}, min: {}, max: {} ({}) ".format(round(totalQdepth/(totalPackets * 1.0),2), minQdepth, maxQdepth, (totalQdepth >= minQdepth*totalPackets))
+            # self.log[swid].write("{}, {}, {}, {}, {}, {}, {}, {}\n".format(totalPackets, et, avgHopLatency, minHopLatency, maxHopLatency, avgQOccu, minQ, maxQ))
         
-        if(self.total_reported >= 100): 
-            self.log[1].close()
-            self.log[2].close()
-            exit(0)
+        # if(self.total_reported >= 100): 
+        #     self.log[1].close()
+        #     self.log[2].close()
+        #     exit(0)
         
         
     
