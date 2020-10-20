@@ -101,6 +101,7 @@ control MyEgress(inout headers hdr,
         q_depth_t.write(1, 0);
         q_depth_t.write(2, 0);
         last_checked.write(0, standard_metadata.egress_global_timestamp);
+        init.write(0, (bit<1>)0);
 
         hdr.udp.length_ = hdr.udp.length_ + 36;
     	hdr.ipv4.totalLen = hdr.ipv4.totalLen + 36;
@@ -121,6 +122,11 @@ control MyEgress(inout headers hdr,
         @atomic {
         bit<1> isInit;
         init.read(isInit, 0);
+        if(isInit == 0) {
+            // next time its 1 
+            init.write(0, (bit<1>)1);
+        }
+
         // we update the registers here everytime
         bit<32> current_packets;
         total_packets.read(current_packets, 0);
@@ -175,8 +181,7 @@ control MyEgress(inout headers hdr,
             last_checked.write(0, standard_metadata.egress_global_timestamp);
         }
 
-        // not its init
-        init.write(0, (bit<1>)1);
+      
         //----------------------------
 
         if (hdr.mri.isValid()) {
