@@ -12,6 +12,15 @@
        }
     },
     {
+      "table": "MyEgress.drop_mri",
+      "match": {
+        "standard_metadata.egress_port": 2 
+      },
+      "action_name": "MyEgress.strip_mri",
+      "action_params": {
+       }
+    },
+    {
       "table": "MyIngress.ipv4_lpm",
       "match": {
         "hdr.ipv4.dstAddr": ["10.0.2.2", 32]

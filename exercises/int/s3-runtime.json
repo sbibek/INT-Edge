@@ -11,6 +11,15 @@
          "swid": 3
        }
     },
+  {
+      "table": "MyEgress.drop_mri",
+      "match": {
+        "standard_metadata.egress_port":99 
+      },
+      "action_name": "MyEgress.strip_mri",
+      "action_params": {
+       }
+    },
     {
       "table": "MyIngress.ipv4_lpm",
       "match": {
