@@ -15,6 +15,8 @@ register<bit<32>>(3) hop_latency_t;
 register<bit<32>>(3) q_depth_t;
 register<bit<48>>(1) last_checked;
 
+register<bit<32>>(MAX_HOPS) link_latency_t;
+
 control MyIngress(inout headers hdr,
                   inout metadata meta,
                   inout standard_metadata_t standard_metadata) {
@@ -221,6 +223,11 @@ control MyEgress(inout headers hdr,
             hdr.ipv4_option.setValid();
             hdr.ipv4.ihl = hdr.ipv4.ihl + 2 ;
             hdr.ipv4.totalLen = hdr.ipv4.totalLen + 8;
+        } else {
+            // extract the information
+            bit<32> link_latency;
+            link_latency_t.read(link_latency, (bit<32>)hdr.ipv4_option.swid);
+            link_latency_t.write((bit<32>)hdr.ipv4_option.swid, link_latency + (bit<32>)(standard_metadata.ingress_global_timestamp - hdr.ipv4_option.reference_timestamp));
         }
 
         linktrace.apply();
