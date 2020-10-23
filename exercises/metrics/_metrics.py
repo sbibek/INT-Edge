@@ -7,7 +7,7 @@ class Metrics(threading.Thread):
         threading.Thread.__init__(self)
         self.total_reported = 0
 
-        self.log = {1:open('/home/p4/logs/tcp/combined/1.csv', 'a'),2:open('/home/p4/logs/tcp/combined/2.csv', 'a')}
+        # self.log = {1:open('/home/p4/logs/tcp/combined/1.csv', 'a'),2:open('/home/p4/logs/tcp/combined/2.csv', 'a')}
     
     
     def process(self, _data, diff):
@@ -21,12 +21,12 @@ class Metrics(threading.Thread):
             print "swid: {}, total packets: {}, elapsed time: {}s ({})".format(swid, totalPackets, et, self.total_reported)
             print "     Avg hop latency(microsec): {}, min: {}, max: {}".format(avgHopLatency, minHopLatency, maxHopLatency)
             print "     Avg Q occupany(%): {}, min: {}, max: {}".format(avgQOccu, minQ, maxQ)
-            self.log[swid].write("{}, {}, {}, {}, {}, {}, {}, {}\n".format(totalPackets, et, avgHopLatency, minHopLatency, maxHopLatency, avgQOccu, minQ, maxQ))
+            # self.log[swid].write("{}, {}, {}, {}, {}, {}, {}, {}\n".format(totalPackets, et, avgHopLatency, minHopLatency, maxHopLatency, avgQOccu, minQ, maxQ))
         
-        if(self.total_reported >= 140): 
-            self.log[1].close()
-            self.log[2].close()
-            exit(0)
+        # if(self.total_reported >= 140): 
+        #     self.log[1].close()
+        #     self.log[2].close()
+        #     exit(0)
         
         
     

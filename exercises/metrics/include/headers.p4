@@ -30,10 +30,12 @@ header ipv4_t {
 }
 
 header ipv4_option_t {
-    bit<1> copyFlag;
-    bit<2> optClass;
-    bit<5> option;
-    bit<8> optionLength;
+    // bit<1> copyFlag;
+    // bit<2> optClass;
+    // bit<5> option;
+    // bit<8> optionLength;
+    bit<16> swid;
+    bit<48> reference_timestamp;
 }
 
 header udp_t {
@@ -89,6 +91,7 @@ struct metadata {
 struct headers {
     ethernet_t         ethernet;
     ipv4_t             ipv4;
+    ipv4_option_t      ipv4_option;
     udp_t              udp;
     mri_fork_t         mri_fork;
     mri_t              mri;

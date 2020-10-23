@@ -18,8 +18,20 @@ parser MyParser(packet_in packet,
     state parse_ipv4 {
         packet.extract(hdr.ipv4);
         verify(hdr.ipv4.ihl >= 5, error.IPHeaderTooShort);
+        transition select(hdr.ipv4.ihl) {
+            5: parse_protocol;
+            default: parse_options;
+        }
+    }
+
+    state parse_options {
+        packet.extract(hdr.ipv4_option);
+        transition parse_protocol;
+    }
+
+    state parse_protocol {
         transition select(hdr.ipv4.protocol) {
-            UDP_PROTOCOL             : parse_udp;
+            UDP_PROTOCOL  : parse_udp;
             default       : accept;
         }
     }

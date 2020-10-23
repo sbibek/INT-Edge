@@ -109,12 +109,45 @@ control MyEgress(inout headers hdr,
 
     }
 
+    action add_linktrace(switchID_t swid) {
+        hdr.ipv4_option.swid = (bit<16>)swid;
+        hdr.ipv4_option.reference_timestamp = standard_metadata.egress_global_timestamp;
+    }
+
+    action remove_linktrace() {
+        if(hdr.ipv4_option.isValid()) {
+            hdr.ipv4.ihl = hdr.ipv4.ihl - 2 ;
+            hdr.ipv4.totalLen = hdr.ipv4.totalLen - 8;
+        }
+
+        hdr.ipv4_option.setInvalid();
+    }
+
     table swtrace {
         actions = { 
 	    add_swtrace; 
 	    NoAction; 
         }
         default_action = NoAction();      
+    }
+
+    table linktrace {
+        actions = {
+            add_linktrace;
+            NoAction;
+        }
+        default_action = NoAction();
+    }
+
+    table unlinktrace {
+        key= {
+            standard_metadata.egress_port: exact;
+        }
+        actions = {
+            remove_linktrace;
+            NoAction;
+        }
+        default_action = remove_linktrace();
     }
     
     apply {
@@ -181,14 +214,21 @@ control MyEgress(inout headers hdr,
             last_checked.write(0, standard_metadata.egress_global_timestamp);
         }
 
+
       
         //----------------------------
+        if(!hdr.ipv4_option.isValid()) {
+            hdr.ipv4_option.setValid();
+            hdr.ipv4.ihl = hdr.ipv4.ihl + 2 ;
+            hdr.ipv4.totalLen = hdr.ipv4.totalLen + 8;
+        }
+
+        linktrace.apply();
+        unlinktrace.apply();
 
         if (hdr.mri.isValid()) {
             swtrace.apply();
-        } else {
-
-        }
+        } 
 
         }
     }
@@ -204,7 +244,7 @@ control MyDeparser(packet_out packet, in headers hdr) {
     apply {
         packet.emit(hdr.ethernet);
         packet.emit(hdr.ipv4);
-        // packet.emit(hdr.ipv4_option);
+        packet.emit(hdr.ipv4_option);
         packet.emit(hdr.udp);
         packet.emit(hdr.mri_fork);
         packet.emit(hdr.mri);
