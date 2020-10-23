@@ -41,6 +41,7 @@ def handle_pkt(pkt, processor):
 
     format = ">IIIIIIIII"
     messageLen = 36
+    linkinfolen = 9
 
     payload = pkt[UDP].payload.load
     fork, hops = struct.unpack(">HH",payload[0:4])
@@ -49,8 +50,16 @@ def handle_pkt(pkt, processor):
 
     data = []
     for i in range(hops):
-        data.insert(0, struct.unpack(format,payload[:messageLen]))
-        payload = payload[messageLen + 72:]
+        hop = struct.unpack(format,payload[:messageLen])
+        payload = payload[messageLen:]
+
+        linkinfo = {}
+        for i in range(linkinfolen):
+            sw, ldelay = struct.unpack(">II", payload[i*8:(i+1)*8])
+            linkinfo[sw] = ldelay
+        
+        data.insert(0, [hop, linkinfo])
+        payload = payload[72:]
 #    hexdump(pkt)
     processor.process(data, diff)
     sys.stdout.flush()

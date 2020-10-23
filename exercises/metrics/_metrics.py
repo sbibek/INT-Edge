@@ -14,13 +14,19 @@ class Metrics(threading.Thread):
         self.total_reported += 1
         os.system('clear')
         for data in _data:
-            swid, totalPackets, elapsedTime, totalHopLatency, minHopLatency, maxHopLatency, totalQdepth, minQdepth, maxQdepth = data
+            swid, totalPackets, elapsedTime, totalHopLatency, minHopLatency, maxHopLatency, totalQdepth, minQdepth, maxQdepth = data[0]
+            linkinfo = data[1]
             et = round(elapsedTime/(1000000.0),3)
             avgHopLatency = round(totalHopLatency/(totalPackets*1.0),4)
             avgQOccu, minQ, maxQ = round(totalQdepth/(totalPackets * 64.0)*100,3), round(minQdepth/64.0*100,2), round(maxQdepth/64.0*100,2)
             print "swid: {}, total packets: {}, elapsed time: {}s ({})".format(swid, totalPackets, et, self.total_reported)
             print "     Avg hop latency(microsec): {}, min: {}, max: {}".format(avgHopLatency, minHopLatency, maxHopLatency)
             print "     Avg Q occupany(%): {}, min: {}, max: {}".format(avgQOccu, minQ, maxQ)
+            print "         Link information (Avg):"
+            for key in linkinfo:
+                if linkinfo[key] != 0:
+                    print "             {} -> {}  {} microsecs".format(key, swid, linkinfo[key])
+
             # self.log[swid].write("{}, {}, {}, {}, {}, {}, {}, {}\n".format(totalPackets, et, avgHopLatency, minHopLatency, maxHopLatency, avgQOccu, minQ, maxQ))
         
         # if(self.total_reported >= 140): 

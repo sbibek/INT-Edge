@@ -97,39 +97,39 @@ control MyEgress(inout headers hdr,
         bit<32> link_latency;
         link_latency_t.read(link_latency, 0);
         hdr.swtraces[0].l1_info.swid = 0;
-        hdr.swtraces[0].l1_info.swid = link_latency;
+        hdr.swtraces[0].l1_info.totalLatency = link_latency;
 
         link_latency_t.read(link_latency, 1);
         hdr.swtraces[0].l2_info.swid = 1;
-        hdr.swtraces[0].l2_info.swid = link_latency;
+        hdr.swtraces[0].l2_info.totalLatency = link_latency;
 
         link_latency_t.read(link_latency, 2);
         hdr.swtraces[0].l3_info.swid = 2;
-        hdr.swtraces[0].l3_info.swid = link_latency;
+        hdr.swtraces[0].l3_info.totalLatency = link_latency;
 
         link_latency_t.read(link_latency, 3);
         hdr.swtraces[0].l4_info.swid = 3;
-        hdr.swtraces[0].l4_info.swid = link_latency;
+        hdr.swtraces[0].l4_info.totalLatency = link_latency;
 
         link_latency_t.read(link_latency, 4);
         hdr.swtraces[0].l5_info.swid = 4;
-        hdr.swtraces[0].l5_info.swid = link_latency;
+        hdr.swtraces[0].l5_info.totalLatency = link_latency;
 
         link_latency_t.read(link_latency, 5);
         hdr.swtraces[0].l6_info.swid = 5;
-        hdr.swtraces[0].l6_info.swid = link_latency;
+        hdr.swtraces[0].l6_info.totalLatency = link_latency;
 
         link_latency_t.read(link_latency, 6);
         hdr.swtraces[0].l7_info.swid = 6;
-        hdr.swtraces[0].l7_info.swid = link_latency;
+        hdr.swtraces[0].l7_info.totalLatency = link_latency;
 
         link_latency_t.read(link_latency, 7);
         hdr.swtraces[0].l8_info.swid = 7;
-        hdr.swtraces[0].l8_info.swid = link_latency;
+        hdr.swtraces[0].l8_info.totalLatency = link_latency;
 
         link_latency_t.read(link_latency, 8);
         hdr.swtraces[0].l9_info.swid = 8;
-        hdr.swtraces[0].l9_info.swid = link_latency;
+        hdr.swtraces[0].l9_info.totalLatency = link_latency;
 
         // now we rest the registers
         total_packets.write(0, 0);
@@ -154,7 +154,6 @@ control MyEgress(inout headers hdr,
 
         hdr.udp.length_ = hdr.udp.length_ + 108;
     	hdr.ipv4.totalLen = hdr.ipv4.totalLen + 108;
-
 
     }
 
@@ -274,7 +273,9 @@ control MyEgress(inout headers hdr,
             // extract the information
             bit<32> link_latency;
             link_latency_t.read(link_latency, (bit<32>)hdr.ipv4_option.swid);
-            link_latency_t.write((bit<32>)hdr.ipv4_option.swid, link_latency + (bit<32>)(standard_metadata.ingress_global_timestamp - hdr.ipv4_option.reference_timestamp));
+            bit<32> current_latency = (bit<32>)(standard_metadata.ingress_global_timestamp - hdr.ipv4_option.reference_timestamp);
+            if(current_latency > link_latency)
+                link_latency_t.write((bit<32>)hdr.ipv4_option.swid, current_latency );
         }
 
         linktrace.apply();
