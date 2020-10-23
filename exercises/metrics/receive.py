@@ -50,7 +50,7 @@ def handle_pkt(pkt, processor):
     data = []
     for i in range(hops):
         data.insert(0, struct.unpack(format,payload[:messageLen]))
-        payload = payload[messageLen:]
+        payload = payload[messageLen + 72:]
 #    hexdump(pkt)
     processor.process(data, diff)
     sys.stdout.flush()

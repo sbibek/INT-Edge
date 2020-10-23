@@ -61,6 +61,10 @@ header switch_intrinsic_t {
 }
 
 
+struct link_info_t {
+    bit<32> swid;
+    bit<32> totalLatency;
+}
 
 header switch_t {
     bit<32> swid;
@@ -72,6 +76,15 @@ header switch_t {
     bit<32> total_qdepth;
     bit<32> min_qdepth;
     bit<32> max_qdepth; 
+    link_info_t l1_info;
+    link_info_t l2_info;
+    link_info_t l3_info;
+    link_info_t l4_info;
+    link_info_t l5_info;
+    link_info_t l6_info;
+    link_info_t l7_info;
+    link_info_t l8_info;
+    link_info_t l9_info;
 }
 
 

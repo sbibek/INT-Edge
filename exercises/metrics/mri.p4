@@ -94,6 +94,43 @@ control MyEgress(inout headers hdr,
         hdr.swtraces[0].min_qdepth = min_qdt;
         hdr.swtraces[0].max_qdepth = max_qdt;
 
+        bit<32> link_latency;
+        link_latency_t.read(link_latency, 0);
+        hdr.swtraces[0].l1_info.swid = 0;
+        hdr.swtraces[0].l1_info.swid = link_latency;
+
+        link_latency_t.read(link_latency, 1);
+        hdr.swtraces[0].l2_info.swid = 1;
+        hdr.swtraces[0].l2_info.swid = link_latency;
+
+        link_latency_t.read(link_latency, 2);
+        hdr.swtraces[0].l3_info.swid = 2;
+        hdr.swtraces[0].l3_info.swid = link_latency;
+
+        link_latency_t.read(link_latency, 3);
+        hdr.swtraces[0].l4_info.swid = 3;
+        hdr.swtraces[0].l4_info.swid = link_latency;
+
+        link_latency_t.read(link_latency, 4);
+        hdr.swtraces[0].l5_info.swid = 4;
+        hdr.swtraces[0].l5_info.swid = link_latency;
+
+        link_latency_t.read(link_latency, 5);
+        hdr.swtraces[0].l6_info.swid = 5;
+        hdr.swtraces[0].l6_info.swid = link_latency;
+
+        link_latency_t.read(link_latency, 6);
+        hdr.swtraces[0].l7_info.swid = 6;
+        hdr.swtraces[0].l7_info.swid = link_latency;
+
+        link_latency_t.read(link_latency, 7);
+        hdr.swtraces[0].l8_info.swid = 7;
+        hdr.swtraces[0].l8_info.swid = link_latency;
+
+        link_latency_t.read(link_latency, 8);
+        hdr.swtraces[0].l9_info.swid = 8;
+        hdr.swtraces[0].l9_info.swid = link_latency;
+
         // now we rest the registers
         total_packets.write(0, 0);
         hop_latency_t.write(0, 0);
@@ -105,8 +142,18 @@ control MyEgress(inout headers hdr,
         last_checked.write(0, standard_metadata.egress_global_timestamp);
         init.write(0, (bit<1>)0);
 
-        hdr.udp.length_ = hdr.udp.length_ + 36;
-    	hdr.ipv4.totalLen = hdr.ipv4.totalLen + 36;
+        link_latency_t.write(0,0);
+        link_latency_t.write(1,0);
+        link_latency_t.write(2,0);
+        link_latency_t.write(3,0);
+        link_latency_t.write(4,0);
+        link_latency_t.write(5,0);
+        link_latency_t.write(6,0);
+        link_latency_t.write(7,0);
+        link_latency_t.write(8,0);
+
+        hdr.udp.length_ = hdr.udp.length_ + 108;
+    	hdr.ipv4.totalLen = hdr.ipv4.totalLen + 108;
 
 
     }
