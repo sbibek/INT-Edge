@@ -68,7 +68,7 @@ def handle_pkt(pkt, processor):
 def main():
     iface = 'eth0'
     processMetrics = Metrics()
-    # processMetrics.start()
+    processMetrics.start()
     print "sniffing on %s" % iface
     sys.stdout.flush()
     sniff(filter="udp and port 4321", iface = iface,
