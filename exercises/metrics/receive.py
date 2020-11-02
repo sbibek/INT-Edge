@@ -55,11 +55,11 @@ def handle_pkt(pkt, processor):
 
         linkinfo = {}
         for i in range(linkinfolen):
-            sw, ldelay = struct.unpack(">II", payload[i*8:(i+1)*8])
-            linkinfo[sw] = ldelay
+            sw, ldelay, mldelay  = struct.unpack(">III", payload[i*12:(i+1)*12])
+            linkinfo[sw] = (ldelay, mldelay)
         
         data.insert(0, [hop, linkinfo])
-        payload = payload[72:]
+        payload = payload[108:]
 #    hexdump(pkt)
     processor.process(data, diff)
     sys.stdout.flush()

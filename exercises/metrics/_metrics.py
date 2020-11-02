@@ -17,6 +17,7 @@ class Metrics(threading.Thread):
         self.rolling_avgq = {}
         self.rolling_avghop = {}
         self.rolling_linklatency = {}
+        self.rolling_minlinklatency = {}
     
     
     def process(self, _data, diff):
@@ -46,7 +47,11 @@ class Metrics(threading.Thread):
                 _k = '{}->{}'.format(key, swid)
                 if _k not in self.rolling_linklatency:
                     self.rolling_linklatency[_k] = RollingQ()
-                self.rolling_linklatency[_k].push(linkinfo[key])
+                self.rolling_linklatency[_k].push(linkinfo[key][0])
+
+                if _k not in self.rolling_minlinklatency:
+                    self.rolling_minlinklatency[_k] = RollingQ()
+                self.rolling_minlinklatency[_k].push(linkinfo[key][1])
 
 
             # print "swid: {} ({}), total packets: {}, elapsed time: {}s ({})".format(swid, self.congestionLevel(avgQOccu), totalPackets, et, self.total_reported)
@@ -94,8 +99,9 @@ class Metrics(threading.Thread):
         print "link latencies "
         for k in self.rolling_linklatency:
             avg = self.rolling_linklatency[k].avg()
+            avgm = self.rolling_minlinklatency[k].avg()
             if avg > 0.0:
-                print '     {} : {} microseconds'.format(k, avg)
+                print '     {} : min: {}, max: {}  (microseconds)'.format(k, avgm, avg)
 
         
 

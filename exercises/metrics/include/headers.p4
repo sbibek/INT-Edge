@@ -64,6 +64,7 @@ header switch_intrinsic_t {
 struct link_info_t {
     bit<32> swid;
     bit<32> totalLatency;
+    bit<32> minLatency;
 }
 
 header switch_t {
