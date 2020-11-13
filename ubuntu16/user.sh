@@ -1,7 +1,4 @@
-#!/bin/bash
-
-# Print script commands and exit on errors.
-set -xe
+et -xe
 
 #Src 
 BMV2_COMMIT="b447ac4c0cfd83e5e72a3cc6120251c1e91128ab"  # August 10, 2019
@@ -107,81 +104,7 @@ cmake ..
 # running 2 simultaneous C++ compiler runs requires more than that
 # much memory.  Things work better by running at most one C++ compilation
 # process at a time.
-make -j1
+make -j32
 sudo make install
 sudo ldconfig
 cd ../..
-
-# --- Tutorials --- #
-sudo pip install crcmod
-git clone https://github.com/p4lang/tutorials
-sudo mv tutorials /home/p4
-sudo chown -R p4:p4 /home/p4/tutorials
-
-# --- Emacs --- #
-sudo cp p4_16-mode.el /usr/share/emacs/site-lisp/
-sudo mkdir /home/p4/.emacs.d/
-echo "(autoload 'p4_16-mode' \"p4_16-mode.el\" \"P4 Syntax.\" t)" > init.el
-echo "(add-to-list 'auto-mode-alist '(\"\\.p4\\'\" . p4_16-mode))" | tee -a init.el
-sudo mv init.el /home/p4/.emacs.d/
-sudo ln -s /usr/share/emacs/site-lisp/p4_16-mode.el /home/p4/.emacs.d/p4_16-mode.el
-sudo chown -R p4:p4 /home/p4/.emacs.d/
-
-# --- Vim --- #
-cd ~  
-mkdir .vim
-cd .vim
-mkdir ftdetect
-mkdir syntax
-echo "au BufRead,BufNewFile *.p4      set filetype=p4" >> ftdetect/p4.vim
-echo "set bg=dark" >> ~/.vimrc
-sudo mv ~/.vimrc /home/p4/.vimrc
-cp ~/p4.vim syntax/p4.vim
-cd ~
-sudo mv .vim /home/p4/.vim
-sudo chown -R p4:p4 /home/p4/.vim
-sudo chown p4:p4 /home/p4/.vimrc
-
-# --- Adding Desktop icons --- #
-DESKTOP=/home/${USER}/Desktop
-mkdir -p ${DESKTOP}
-
-cat > ${DESKTOP}/Terminal << EOF
-[Desktop Entry]
-Encoding=UTF-8
-Type=Application
-Name=Terminal
-Name[en_US]=Terminal
-Icon=konsole
-Exec=/usr/bin/x-terminal-emulator
-Comment[en_US]=
-EOF
-
-cat > ${DESKTOP}/Wireshark << EOF
-[Desktop Entry]
-Encoding=UTF-8
-Type=Application
-Name=Wireshark
-Name[en_US]=Wireshark
-Icon=wireshark
-Exec=/usr/bin/wireshark
-Comment[en_US]=
-EOF
-
-cat > ${DESKTOP}/Sublime\ Text << EOF
-[Desktop Entry]
-Encoding=UTF-8
-Type=Application
-Name=Sublime Text
-Name[en_US]=Sublime Text
-Icon=sublime-text
-Exec=/opt/sublime_text/sublime_text
-Comment[en_US]=
-EOF
-
-sudo mkdir -p /home/p4/Desktop
-sudo mv /home/${USER}/Desktop/* /home/p4/Desktop
-sudo chown -R p4:p4 /home/p4/Desktop/
-
-# Do this last!
-sudo reboot
