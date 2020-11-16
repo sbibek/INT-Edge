@@ -67,7 +67,7 @@ class TelemetryProcessor:
             return "HIGH_CONGESTION"
     
     def log(self):
-        os.system('clear')
+        # os.system('clear')
         for swid in self.switches:
             # pps = self.rolling_pps[swid].avg()
             qoccupancy = self.rolling_avgq[swid].lastRolledValue
@@ -90,6 +90,9 @@ class TelemetryProcessor:
                 self.currentState["link"][k] = {"min": avgm, "max": avg}
                 print('     {} : min: {}, max: {}  (microseconds)'.format(k, avgm, avg))
     
+    def getCurrentSnapshot(self):
+        return self.currentState
+    
     def __initLogger(self):
         self.loggingThread = threading.Thread(target = self.loggerThread)
         self.loggingThread.start()
@@ -97,7 +100,7 @@ class TelemetryProcessor:
     def loggerThread(self):
         while not self.stopLogging:
             self.log()
-            time.sleep(1)
+            time.sleep(0.5)
     
     def stopLogging(self):
         self.stopLogging = True

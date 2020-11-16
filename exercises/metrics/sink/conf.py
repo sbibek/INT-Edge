@@ -12,6 +12,9 @@ class Configuration:
     
     def getListenConf(self):
         return self.conf['listen']
+    
+    def getMetaServerConf(self):
+        return self.conf['metaserver']
 
 # instantiate a variable
 conf = Configuration()
