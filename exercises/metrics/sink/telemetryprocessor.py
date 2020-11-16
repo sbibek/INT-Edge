@@ -78,17 +78,17 @@ class TelemetryProcessor:
             
             self.currentState["hop"][swid] = {"qoccupancy": qoccupancy, "hoplatency": hop, "congestionlevel": self.congestionLevel(qoccupancy)}
 
-            print("switch Id: {}, status: {} ".format(swid, self.congestionLevel(qoccupancy)))
-            print('     Queue occupancy: {}%, hop latency: {} microseconds'.format(qoccupancy, hop))
-            print('')
+            # print("switch Id: {}, status: {} ".format(swid, self.congestionLevel(qoccupancy)))
+            # print('     Queue occupancy: {}%, hop latency: {} microseconds'.format(qoccupancy, hop))
+            # print('')
 
-        print("link latencies ")
+        # print("link latencies ")
         for k in self.rolling_linklatency:
             avg = self.rolling_linklatency[k].lastRolledValue
             avgm = self.rolling_minlinklatency[k].lastRolledValue
             if avg > 0.0:
                 self.currentState["link"][k] = {"min": avgm, "max": avg}
-                print('     {} : min: {}, max: {}  (microseconds)'.format(k, avgm, avg))
+                # print('     {} : min: {}, max: {}  (microseconds)'.format(k, avgm, avg))
     
     def getCurrentSnapshot(self):
         return self.currentState
