@@ -19,10 +19,10 @@ class MetaServer(threading.Thread):
         server.bind((self.host, self.port))
         try:
             while True:
-                print("[metaserver] starting worker instance at ({},{})".format(self.host, self.port))
+                # print("[metaserver] starting worker instance at ({},{})".format(self.host, self.port))
                 server.listen()
                 connection, address = server.accept()
-                print("[metaserver] got connection from {}", address)
+                # print("[metaserver] got connection from {}", address)
                 inv = MetaClientProcessor(connection,address, self.processor)
                 inv.start()
                 # now return to listening for more connections

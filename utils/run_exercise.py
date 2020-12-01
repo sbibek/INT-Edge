@@ -68,6 +68,7 @@ class ExerciseTopo(Topo):
     """ The mininet topology class for the P4 tutorial exercises.
     """
     def __init__(self, hosts, switches, links, log_dir, bmv2_exe, pcap_dir, **opts):
+        print links
         Topo.__init__(self, **opts)
         host_links = []
         switch_links = []
