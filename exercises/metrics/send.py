@@ -9,10 +9,19 @@ import struct
 from scapy.all import sendp, send, hexdump, get_if_list, get_if_hwaddr
 from scapy.all import Packet, IPOption
 from scapy.all import Ether, IP, UDP, Raw
-from scapy.all import IntField, FieldListField, FieldLenField, ShortField, PacketListField
+from scapy.all import IntField, FieldListField, FieldLenField, ShortField, PacketListField, BitField
 from scapy.layers.inet import _IPOption_HDR
-
 from time import sleep
+
+class IPOption_MRI(IPOption):
+    # name = "MRI"
+    option = 31
+    fields_desc = [
+        _IPOption_HDR,
+        BitField("swid", 0, 8),
+        BitField("reference_timestamp", 0, 48)
+    ]
+
 
 def get_if():
     ifs=get_if_list()
@@ -28,9 +37,11 @@ def get_if():
 
 
 def getPacket(iface, addr, path):
-    return Ether(src=get_if_hwaddr(iface), dst="ff:ff:ff:ff:ff:ff") / IP(
-        dst=addr)/ UDP(
+    pkt = Ether(src=get_if_hwaddr(iface), dst="ff:ff:ff:ff:ff:ff") / IP(
+        dst=addr, options=IPOption_MRI(swid=0, reference_timestamp=0))/ UDP(
             dport=4321, sport=1234) / Raw(load=struct.pack('>HH', path, 0)) 
+    pkt.show()
+    return pkt
 
 
 

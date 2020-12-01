@@ -30,11 +30,11 @@ header ipv4_t {
 }
 
 header ipv4_option_t {
-    // bit<1> copyFlag;
-    // bit<2> optClass;
-    // bit<5> option;
-    // bit<8> optionLength;
-    bit<16> swid;
+    bit<1> copyFlag;
+    bit<2> optClass;
+    bit<5> option;
+    bit<8> optionLength;
+    bit<8> swid;
     bit<48> reference_timestamp;
 }
 
@@ -62,30 +62,20 @@ header switch_intrinsic_t {
 
 
 struct link_info_t {
-    bit<32> swid;
-    bit<32> totalLatency;
-    bit<32> minLatency;
+    bit<8> swid;
+    bit<16> totalLatency;
 }
 
 header switch_t {
-    bit<32> swid;
+    bit<8> swid;
     bit<32> total_packets;
-    bit<32> elapsed_time;
     bit<32> total_hop_latency;
-    bit<32> min_hop_latency;
-    bit<32> max_hop_latency;
-    bit<32> total_qdepth;
-    bit<32> min_qdepth;
-    bit<32> max_qdepth; 
+    bit<16> total_qdepth;
     link_info_t l1_info;
     link_info_t l2_info;
     link_info_t l3_info;
     link_info_t l4_info;
     link_info_t l5_info;
-    link_info_t l6_info;
-    link_info_t l7_info;
-    link_info_t l8_info;
-    link_info_t l9_info;
 }
 
 
