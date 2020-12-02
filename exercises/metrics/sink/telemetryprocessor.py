@@ -12,7 +12,6 @@ class TelemetryProcessor:
         self.rolling_avgq = {}
         self.rolling_avghop = {}
         self.rolling_linklatency = {}
-        self.rolling_minlinklatency = {}
 
         self.currentState = {"hop":{}, "link":{}}
 
@@ -21,17 +20,15 @@ class TelemetryProcessor:
     def process(self, _data):
         try:
             for data in _data:
-                swid, totalPackets, elapsedTime, totalHopLatency, minHopLatency, maxHopLatency, totalQdepth, minQdepth, maxQdepth = data[0]
+                swid, totalPackets, totalHopLatency, totalQdepth = data[0]
+
                 linkinfo = data[1]
+
                 avgHopLatency = round(totalHopLatency/(totalPackets*1.0),4)
-                avgQOccu, minQ, maxQ = round(totalQdepth/(totalPackets * 64.0)*100,3), round(minQdepth/64.0*100,2), round(maxQdepth/64.0*100,2)
+                avgQOccu = round(totalQdepth/(totalPackets * 64.0)*100,3)
 
                 if swid not in self.switches:
                     self.switches.append(swid)
-
-                # if swid not in self.rolling_pps:
-                #     self.rolling_pps[swid] = RollingQ()
-                # self.rolling_pps[swid].push(round(totalPackets/et,2))
 
                 if swid not in self.rolling_avgq:
                     self.rolling_avgq[swid] = RollingQ()
@@ -46,10 +43,7 @@ class TelemetryProcessor:
                     if _k not in self.rolling_linklatency:
                         self.rolling_linklatency[_k] = RollingQ()
                     self.rolling_linklatency[_k].push(linkinfo[key][0])
-
-                    if _k not in self.rolling_minlinklatency:
-                        self.rolling_minlinklatency[_k] = RollingQ()
-                    self.rolling_minlinklatency[_k].push(linkinfo[key][1])
+# 
         except Exception as e:
             logging.error('Error at %s', 'division', exc_info=e)
     
@@ -85,10 +79,9 @@ class TelemetryProcessor:
         # print("link latencies ")
         for k in self.rolling_linklatency:
             avg = self.rolling_linklatency[k].lastRolledValue
-            avgm = self.rolling_minlinklatency[k].lastRolledValue
             if avg > 0.0:
-                self.currentState["link"][k] = {"min": avgm, "max": avg}
-                print('     {} : min: {}, max: {}  (microseconds)'.format(k, avgm, avg))
+                self.currentState["link"][k] = {"max": avg}
+                print('     {} : avg: {}  (microseconds)'.format(k, avg))
     
     def getCurrentSnapshot(self):
         return self.currentState

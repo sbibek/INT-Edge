@@ -109,12 +109,6 @@ control MyEgress(inout headers hdr,
         hop_latency_t.write(0, 0);
         q_depth_t.write(0 , 0);
 
-        link_latency_t.write(0,0);
-        link_latency_t.write(1,0);
-        link_latency_t.write(2,0);
-        link_latency_t.write(3,0);
-        link_latency_t.write(4,0);
-
         hdr.udp.length_ = hdr.udp.length_ + 26;
     	hdr.ipv4.totalLen = hdr.ipv4.totalLen + 26;
     }

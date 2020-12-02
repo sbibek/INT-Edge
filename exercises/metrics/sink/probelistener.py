@@ -14,27 +14,27 @@ class ProbeListener:
         
         # now we extract the information on this packet
         format = ">IIIIIIIII"
-        messageLen = 36
-        linkinfolen = 9
+        messageLen = 11 
+        linkinfolen = 5 
 
         payload = pkt[UDP].payload.load
         fork, hops = struct.unpack(">HH",payload[0:4])
-        # print "path: {}, total hops: {}".format(fork, hops)
         payload = payload[4:]
 
         data = []
         for i in range(hops):
-            hop = struct.unpack(format,payload[:messageLen])
+            hop = struct.unpack(">BIIH",payload[:messageLen])
             payload = payload[messageLen:]
 
             linkinfo = {}
             for i in range(linkinfolen):
-                sw, ldelay, mldelay  = struct.unpack(">III", payload[i*12:(i+1)*12])
-                linkinfo[sw] = (ldelay, mldelay)
+                sw, ldelay  = struct.unpack(">BH", payload[i*3:(i+1)*3])
+                if ldelay > 0:
+                    linkinfo[sw] = (ldelay, 0)
 
             data.insert(0, [hop, linkinfo])
-            payload = payload[108:]
-        
+            payload = payload[15:]
+
         # send it to telemetry processor
         self.processor.process(data)
 
