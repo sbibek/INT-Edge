@@ -44,8 +44,11 @@ def handle_pkt(pkt, processor):
     linkinfolen = 9
 
     payload = pkt[UDP].payload.load
+
     fork, hops = struct.unpack(">HH",payload[0:4])
-    # print "path: {}, total hops: {}".format(fork, hops)
+    print "path: {}, total hops: {}".format(fork, hops)
+    print "total length {}".format(len(payload))
+    return
     payload = payload[4:]
 
     data = []
@@ -68,7 +71,7 @@ def handle_pkt(pkt, processor):
 def main():
     iface = 'eth0'
     processMetrics = Metrics()
-    processMetrics.start()
+    # processMetrics.start()
     print "sniffing on %s" % iface
     sys.stdout.flush()
     sniff(filter="udp and port 4321", iface = iface,

@@ -8,17 +8,22 @@
 #include "include/checksum.p4"
 
 
+#define RE_HASH(inc) if(atIdx != (bit<32>)hdr.ipv4_option.swid && atIdx != (bit<32>)0) { \
+                rand = rand + (bit<32>)hdr.ipv4_option.swid + (bit<32>)inc; \
+                hash(idx, HashAlgorithm.crc32, (bit<32>)0, {hdr.ipv4_option.swid, rand},(bit<32>) MAX_NEIGHBORS); \
+                swid_map_t.read(atIdx, idx); \
+            }
 
 
-register<bit<1>>(1) init;
+
+
 register<bit<32>>(1) total_packets;
-// [0] = total, [1] = min, [2] = max
 register<bit<32>>(1) hop_latency_t;
-// [0] = total, [1] = min, [2] = max
 register<bit<32>>(1) q_depth_t;
-register<bit<48>>(1) last_checked;
 
-register<bit<32>>(MAX_HOPS) link_latency_t;
+register<bit<32>>(255) hash_rand_t;
+register<bit<32>>(MAX_NEIGHBORS) swid_map_t;
+register<bit<32>>(MAX_NEIGHBORS) link_latency_t;
 
 control MyIngress(inout headers hdr,
                   inout metadata meta,
@@ -79,7 +84,6 @@ control MyEgress(inout headers hdr,
         total_packets.read(current_packets, 0);
         hop_latency_t.read(current_hlt, 0);
         q_depth_t.read(current_qdt,0);
-        last_checked.read(current_ts, 0);
 
 
         hdr.swtraces[0].setValid();
@@ -89,24 +93,30 @@ control MyEgress(inout headers hdr,
         hdr.swtraces[0].total_qdepth =(bit<16>)current_qdt;
 
         bit<32> link_latency;
+        bit<32> sid;
         link_latency_t.read(link_latency, 0);
-        hdr.swtraces[0].l1_info.swid = 0;
+        swid_map_t.read(sid, 0);
+        hdr.swtraces[0].l1_info.swid = (bit<8>)sid;
         hdr.swtraces[0].l1_info.totalLatency = (bit<16>)link_latency;
 
         link_latency_t.read(link_latency, 1);
-        hdr.swtraces[0].l2_info.swid = 1;
+        swid_map_t.read(sid, 1);
+        hdr.swtraces[0].l2_info.swid = (bit<8>)sid;
         hdr.swtraces[0].l2_info.totalLatency = (bit<16>)link_latency;
 
         link_latency_t.read(link_latency, 2);
-        hdr.swtraces[0].l3_info.swid = 2;
+        swid_map_t.read(sid, 2);
+        hdr.swtraces[0].l3_info.swid = (bit<8>)sid;;
         hdr.swtraces[0].l3_info.totalLatency = (bit<16>)link_latency;
 
         link_latency_t.read(link_latency, 3);
-        hdr.swtraces[0].l4_info.swid = 3;
+        swid_map_t.read(sid, 3);
+        hdr.swtraces[0].l4_info.swid = (bit<8>)sid;;
         hdr.swtraces[0].l4_info.totalLatency = (bit<16>)link_latency;
 
         link_latency_t.read(link_latency, 4);
-        hdr.swtraces[0].l5_info.swid = 4;
+        swid_map_t.read(sid, 4);
+        hdr.swtraces[0].l5_info.swid = (bit<8>)sid;;
         hdr.swtraces[0].l5_info.totalLatency = (bit<16>)link_latency;
 
         // now we rest the registers
@@ -155,11 +165,37 @@ control MyEgress(inout headers hdr,
 
       
         //----------------------------
-        if(hdr.ipv4_option.isValid() && hdr.ipv4_option.option == IPV4_OPTION_MRI) {
+        if(hdr.ipv4_option.isValid() && hdr.ipv4_option.option == IPV4_OPTION_MRI && hdr.ipv4_option.reference_timestamp != 0) {
+            // reference timestamp is 0 only when the switch receiving it is the fist switch from the sender host
+            // in that case we can just ignore the info at that case
             // extract the information
             bit<32> current_latency = (bit<32>)(standard_metadata.ingress_global_timestamp - hdr.ipv4_option.reference_timestamp);
-            link_latency_t.write((bit<32>)hdr.ipv4_option.swid, current_latency );
+            // we only store MAX_NEIGHBORS
 
+            // this way of generating index always might not be good as this might collide as we have small number of neighbors 
+            // so we chain the hashing algorithm until we find a good spot, assuming running hash for 5 times is sufficient to land on the 
+            // unique index, we will increment the random value for all the reruns
+            bit<32> idx;
+            bit<32> rand;
+            bit<32> atIdx;
+
+            hash_rand_t.read(rand, (bit<32>)hdr.ipv4_option.swid);
+            hash(idx, HashAlgorithm.crc32, (bit<32>)0, {hdr.ipv4_option.swid, rand},(bit<32>) MAX_NEIGHBORS);
+            swid_map_t.read(atIdx, idx);
+
+            RE_HASH(17);
+            RE_HASH(8);
+            RE_HASH(21);
+            RE_HASH(219);
+            RE_HASH(787);
+
+            // now we will take the resultant value of rand as the random used for this switch
+            // next time, this same hash will be used to get to the same index
+            hash_rand_t.write((bit<32>) hdr.ipv4_option.swid, rand);
+
+            // now push data to those idx
+            swid_map_t.write(idx, (bit<32>)hdr.ipv4_option.swid);
+            link_latency_t.write(idx, current_latency );
         }
 
         if (hdr.mri.isValid()) {

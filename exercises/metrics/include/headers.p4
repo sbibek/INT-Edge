@@ -33,7 +33,6 @@ header ipv4_option_t {
     bit<1> copyFlag;
     bit<2> optClass;
     bit<5> option;
-    bit<8> optionLength;
     bit<8> swid;
     bit<48> reference_timestamp;
 }
