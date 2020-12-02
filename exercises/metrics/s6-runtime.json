@@ -12,14 +12,6 @@
       }
     },
     {
-      "table": "MyEgress.linktrace",
-      "default_action": true,
-      "action_name": "MyEgress.add_linktrace",
-      "action_params": {
-        "swid": 6
-      }
-    },
-    {
       "table": "MyIngress.ipv4_lpm",
       "match": {
         "hdr.ipv4.dstAddr": [

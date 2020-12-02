@@ -61,6 +61,10 @@ control MyEgress(inout headers hdr,
                  inout standard_metadata_t standard_metadata) {
     action add_swtrace(switchID_t swid) { 
 
+        // add information to the option regarding the current timestamp
+        hdr.ipv4_option.swid = (bit<8>)swid;
+        hdr.ipv4_option.reference_timestamp = standard_metadata.egress_global_timestamp;
+
          hdr.mri.count = hdr.mri.count + 1;
          hdr.swtraces.push_front(1);
         // According to the P4_16 spec, pushed elements are invalid, so we need
@@ -120,20 +124,6 @@ control MyEgress(inout headers hdr,
     	hdr.ipv4.totalLen = hdr.ipv4.totalLen + 26;
     }
 
-    action add_linktrace(switchID_t swid) {
-        hdr.ipv4_option.swid = (bit<8>)swid;
-        hdr.ipv4_option.reference_timestamp = standard_metadata.egress_global_timestamp;
-    }
-
-    // action remove_linktrace() {
-    //     if(hdr.ipv4_option.isValid()) {
-    //         hdr.ipv4.ihl = hdr.ipv4.ihl - 2 ;
-    //         hdr.ipv4.totalLen = hdr.ipv4.totalLen - 8;
-    //     }
-
-    //     hdr.ipv4_option.setInvalid();
-    // }
-
     table swtrace {
         actions = { 
 	    add_swtrace; 
@@ -142,25 +132,6 @@ control MyEgress(inout headers hdr,
         default_action = NoAction();      
     }
 
-    table linktrace {
-        actions = {
-            add_linktrace;
-            NoAction;
-        }
-        default_action = NoAction();
-    }
-
-    // table unlinktrace {
-    //     key= {
-    //         standard_metadata.egress_port: exact;
-    //     }
-    //     actions = {
-    //         remove_linktrace;
-    //         NoAction;
-    //     }
-    //     default_action = remove_linktrace();
-    // }
-    
     apply {
 
         @atomic {
@@ -190,8 +161,6 @@ control MyEgress(inout headers hdr,
             link_latency_t.write((bit<32>)hdr.ipv4_option.swid, current_latency );
 
         }
-
-        linktrace.apply();
 
         if (hdr.mri.isValid()) {
             swtrace.apply();
