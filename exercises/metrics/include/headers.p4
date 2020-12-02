@@ -70,11 +70,11 @@ header switch_t {
     bit<32> total_packets;
     bit<32> total_hop_latency;
     bit<16> total_qdepth;
+    link_info_t l0_info;
     link_info_t l1_info;
     link_info_t l2_info;
     link_info_t l3_info;
     link_info_t l4_info;
-    link_info_t l5_info;
 }
 
 

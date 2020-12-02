@@ -14,7 +14,10 @@
                 swid_map_t.read(atIdx, idx); \
             }
 
-
+#define UPDATE_PAYLOAD_FROM_REG(idx) link_latency_t.read(link_latency, idx); \
+                                swid_map_t.read(sid, idx); \
+                                hdr.swtraces[0].l##idx##_info.swid = (bit<8>)sid; \
+                                hdr.swtraces[0].l##idx##_info.totalLatency = (bit<16>)link_latency; 
 
 
 register<bit<32>>(1) total_packets;
@@ -94,30 +97,12 @@ control MyEgress(inout headers hdr,
 
         bit<32> link_latency;
         bit<32> sid;
-        link_latency_t.read(link_latency, 0);
-        swid_map_t.read(sid, 0);
-        hdr.swtraces[0].l1_info.swid = (bit<8>)sid;
-        hdr.swtraces[0].l1_info.totalLatency = (bit<16>)link_latency;
 
-        link_latency_t.read(link_latency, 1);
-        swid_map_t.read(sid, 1);
-        hdr.swtraces[0].l2_info.swid = (bit<8>)sid;
-        hdr.swtraces[0].l2_info.totalLatency = (bit<16>)link_latency;
-
-        link_latency_t.read(link_latency, 2);
-        swid_map_t.read(sid, 2);
-        hdr.swtraces[0].l3_info.swid = (bit<8>)sid;;
-        hdr.swtraces[0].l3_info.totalLatency = (bit<16>)link_latency;
-
-        link_latency_t.read(link_latency, 3);
-        swid_map_t.read(sid, 3);
-        hdr.swtraces[0].l4_info.swid = (bit<8>)sid;;
-        hdr.swtraces[0].l4_info.totalLatency = (bit<16>)link_latency;
-
-        link_latency_t.read(link_latency, 4);
-        swid_map_t.read(sid, 4);
-        hdr.swtraces[0].l5_info.swid = (bit<8>)sid;;
-        hdr.swtraces[0].l5_info.totalLatency = (bit<16>)link_latency;
+        UPDATE_PAYLOAD_FROM_REG(0);
+        UPDATE_PAYLOAD_FROM_REG(1);
+        UPDATE_PAYLOAD_FROM_REG(2);
+        UPDATE_PAYLOAD_FROM_REG(3);
+        UPDATE_PAYLOAD_FROM_REG(4);
 
         // now we rest the registers
         total_packets.write(0, 0);
