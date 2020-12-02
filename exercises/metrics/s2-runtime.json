@@ -19,30 +19,8 @@
         "swid": 2
       }
     },
-    {
-      "table": "MyEgress.unlinktrace",
-      "match": {
-        "standard_metadata.egress_port": 2
-      },
-      "action_name": "NoAction",
-      "action_params": {}
-    },
-    {
-      "table": "MyEgress.unlinktrace",
-      "match": {
-        "standard_metadata.egress_port": 3
-      },
-      "action_name": "NoAction",
-      "action_params": {}
-    },
-   {
-      "table": "MyEgress.unlinktrace",
-      "match": {
-        "standard_metadata.egress_port": 4
-      },
-      "action_name": "NoAction",
-      "action_params": {}
-    },
+  
+   
     {
       "table": "MyIngress.ipv4_lpm",
       "match": {

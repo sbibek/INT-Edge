@@ -20,14 +20,6 @@
       }
     },
     {
-      "table": "MyEgress.unlinktrace",
-      "match": {
-        "standard_metadata.egress_port": 2
-      },
-      "action_name": "NoAction",
-      "action_params": {}
-    },
-    {
       "table": "MyIngress.ipv4_lpm",
       "match": {
         "hdr.ipv4.dstAddr": [

@@ -125,14 +125,14 @@ control MyEgress(inout headers hdr,
         hdr.ipv4_option.reference_timestamp = standard_metadata.egress_global_timestamp;
     }
 
-    action remove_linktrace() {
-        if(hdr.ipv4_option.isValid()) {
-            hdr.ipv4.ihl = hdr.ipv4.ihl - 2 ;
-            hdr.ipv4.totalLen = hdr.ipv4.totalLen - 8;
-        }
+    // action remove_linktrace() {
+    //     if(hdr.ipv4_option.isValid()) {
+    //         hdr.ipv4.ihl = hdr.ipv4.ihl - 2 ;
+    //         hdr.ipv4.totalLen = hdr.ipv4.totalLen - 8;
+    //     }
 
-        hdr.ipv4_option.setInvalid();
-    }
+    //     hdr.ipv4_option.setInvalid();
+    // }
 
     table swtrace {
         actions = { 
@@ -150,16 +150,16 @@ control MyEgress(inout headers hdr,
         default_action = NoAction();
     }
 
-    table unlinktrace {
-        key= {
-            standard_metadata.egress_port: exact;
-        }
-        actions = {
-            remove_linktrace;
-            NoAction;
-        }
-        default_action = remove_linktrace();
-    }
+    // table unlinktrace {
+    //     key= {
+    //         standard_metadata.egress_port: exact;
+    //     }
+    //     actions = {
+    //         remove_linktrace;
+    //         NoAction;
+    //     }
+    //     default_action = remove_linktrace();
+    // }
     
     apply {
 
@@ -180,6 +180,7 @@ control MyEgress(inout headers hdr,
         bit<32> current_qdt;
         q_depth_t.read(current_qdt,0);
         q_depth_t.write(0, current_qdt + (bit<32>)standard_metadata.deq_qdepth );
+
 
       
         //----------------------------
