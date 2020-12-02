@@ -3,32 +3,32 @@
        "h0": {"ip": "10.0.1.11/28", "mac": "08:00:00:00:01:11",
                 "commands":["route add default gw 10.0.1.1 dev eth0",
                             "arp -i eth0 -s 10.0.1.1 08:00:00:00:01:00"
-                            ,"ifconfig eth0 mtu 1000 up"]},
+                           ]},
 
         "h10": {"ip": "10.0.2.11/28", "mac": "08:00:00:00:02:11",
                  "commands":["route add default gw 10.0.2.1 dev eth0",
                              "arp -i eth0 -s 10.0.2.1 08:00:00:00:02:00"
-                             ,"ifconfig eth0 mtu 1000 up"]},
+                            ]},
 
         "h20": {"ip": "10.0.3.11/28", "mac": "08:00:00:00:03:11",
                "commands":["route add default gw 10.0.3.1 dev eth0",
                             "arp -i eth0 -s 10.0.3.1 08:00:00:00:03:00"
-                            ,"ifconfig eth0 mtu 1000 up"]},
+                            ]},
 
         "h30": {"ip": "10.0.4.11/28", "mac": "08:00:00:00:04:11",
                  "commands":["route add default gw 10.0.4.1 dev eth0",
                              "arp -i eth0 -s 10.0.4.1 08:00:00:00:04:00"
-                             ,"ifconfig eth0 mtu 1000 up"]},
+                           ]},
 
         "h40": {"ip": "10.0.5.11/28", "mac": "08:00:00:00:05:11",
                 "commands":["route add default gw 10.0.5.1 dev eth0",
                             "arp -i eth0 -s 10.0.5.1 08:00:00:00:05:00"
-                            ,"ifconfig eth0 mtu 1000 up"]},
+                            ]},
 
         "h50": {"ip": "10.0.6.11/28", "mac": "08:00:00:00:06:11",
                 "commands":["route add default gw 10.0.6.1 dev eth0",
                             "arp -i eth0 -s 10.0.6.1 08:00:00:00:06:00"
-                            ,"ifconfig eth0 mtu 1000 up"]}
+                            ]}
     },
     "switches": {
         "s1": { "runtime_json" : "s1-runtime.json" },
