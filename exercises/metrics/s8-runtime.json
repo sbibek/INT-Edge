@@ -8,21 +8,7 @@
       "default_action": true,
       "action_name": "MyEgress.add_swtrace",
       "action_params": {
-        "swid": 6 
-      }
-    },
-    {
-      "table": "MyIngress.ipv4_lpm",
-      "match": {
-        "hdr.ipv4.dstAddr": [
-          "192.168.6.10",
-          32
-        ]
-      },
-      "action_name": "MyIngress.ipv4_forward",
-      "action_params": {
-        "dstAddr": "08:00:00:00:06:11",
-        "port": 1
+        "swid": 8 
       }
     },
     {
@@ -35,7 +21,7 @@
       },
       "action_name": "MyIngress.ipv4_forward",
       "action_params": {
-        "dstAddr": "08:00:00:00:08:00",
+        "dstAddr": "08:00:00:00:07:00",
         "port": 2
       }
     },
@@ -49,7 +35,7 @@
       },
       "action_name": "MyIngress.ipv4_forward",
       "action_params": {
-        "dstAddr": "08:00:00:00:08:00",
+        "dstAddr": "08:00:00:00:07:00",
         "port": 2
       }
     },
@@ -63,8 +49,8 @@
       },
       "action_name": "MyIngress.ipv4_forward",
       "action_params": {
-        "dstAddr": "08:00:00:00:08:00",
-        "port": 2
+        "dstAddr": "08:00:00:00:09:00",
+        "port": 1
       }
     },
     {
@@ -77,8 +63,8 @@
       },
       "action_name": "MyIngress.ipv4_forward",
       "action_params": {
-        "dstAddr": "08:00:00:00:08:00",
-        "port": 2
+        "dstAddr": "08:00:00:00:09:00",
+        "port": 1
       }
     },
     {
@@ -91,8 +77,22 @@
       },
       "action_name": "MyIngress.ipv4_forward",
       "action_params": {
-        "dstAddr": "08:00:00:00:08:00",
-        "port": 2
+        "dstAddr": "08:00:00:00:05:00",
+        "port": 4
+      }
+    },
+    {
+      "table": "MyIngress.ipv4_lpm",
+      "match": {
+        "hdr.ipv4.dstAddr": [
+          "192.168.6.0",
+          24
+        ]
+      },
+      "action_name": "MyIngress.ipv4_forward",
+      "action_params": {
+        "dstAddr": "08:00:00:00:06:00",
+        "port": 3
       }
     }
   ]

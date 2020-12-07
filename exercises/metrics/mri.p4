@@ -45,7 +45,7 @@ control MyIngress(inout headers hdr,
     table ipv4_lpm {
         key = {
             hdr.ipv4.dstAddr: lpm;
-            hdr.mri_fork.fork: exact;
+            // hdr.mri_fork.fork: exact;
         }
         actions = {
             ipv4_forward;
