@@ -94,6 +94,22 @@
         "dstAddr": "08:00:00:00:09:00",
         "port": 2
       }
+    },
+
+
+    {
+      "table": "MyIngress.probe_lpm",
+      "match": {
+        "hdr.ipv4.srcAddr": [
+          "192.168.0.0",
+          16 
+        ]
+      },
+      "action_name": "MyIngress.ipv4_forward",
+      "action_params": {
+        "dstAddr": "08:00:00:00:09:00",
+        "port": 2
+      }
     }
   ]
 }

@@ -56,8 +56,24 @@ control MyIngress(inout headers hdr,
         default_action = NoAction();
     }
 
+    table probe_lpm {
+        key = {
+            hdr.ipv4.srcAddr: lpm;
+        }
+        actions = {
+            ipv4_forward;
+            drop;
+            NoAction;
+        }
+        size = 1024;
+        default_action = NoAction();
+    }
+
     apply {
-        if (hdr.ipv4.isValid()) {
+        if(hdr.mri.isValid()) {
+            probe_lpm.apply();
+        }
+        else if (hdr.ipv4.isValid()) {
             ipv4_lpm.apply();
         }
     }
