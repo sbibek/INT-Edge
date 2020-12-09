@@ -33,6 +33,7 @@ from mininet.examples.clustercli import ClusterCLI as CLI
 from mininet.examples.cluster import ( RemoteLink as TCLink, MininetCluster as Mininet, SwitchBinPlacer )
 from p4runtime_switch import RemoteP4RuntimeSwitch as P4RuntimeSwitch, RemoteP4Switch as P4Switch
 from clustermode import RemoteP4Host as P4Host
+from ClusterPlacer import getP4CustomPlacer
 
 import p4runtime_lib.simple_controller
 
@@ -176,6 +177,7 @@ class ExerciseRunner:
         self.hosts = topo['hosts']
         self.switches = topo['switches']
         self.links = self.parse_links(topo['links'])
+        self.cluster = topo['cluster']
 
         # Ensure all the needed directories exist and are directories
         for dir_name in [log_dir, pcap_dir]:
@@ -255,14 +257,14 @@ class ExerciseRunner:
                                 pcap_dump=self.pcap_dir)
 
         self.topo = ExerciseTopo(self.hosts, self.switches, self.links, self.log_dir, self.bmv2_exe, self.pcap_dir)
-
-        servers = [ 'localhost', '134.197.42.31' ]
+        # print "[cluster] {}".format(self.cluster)
+        # servers = [ 'localhost', '134.197.42.31' ]
         self.net = Mininet(topo = self.topo,
-                      servers = servers,
+                      servers = list(self.cluster['servers'].values()),
                       link = TCLink,
                       host = P4Host,
                       switch = defaultSwitchClass,
-                      placement=SwitchBinPlacer,
+                      placement=getP4CustomPlacer(self.cluster),
                       controller = None)
 
     def program_switch_p4runtime(self, sw_name, sw_dict):
