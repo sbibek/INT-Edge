@@ -22,14 +22,18 @@
 import os, sys, json, subprocess, re, argparse
 from time import sleep
 
-from p4_mininet import P4Switch, P4Host
+# from p4_mininet import P4Switch, P4Host
 
-from mininet.net import Mininet
+# from mininet.net import Mininet
 from mininet.topo import Topo
-from mininet.link import TCLink
-from mininet.cli import CLI
+# from mininet.link import TCLink
+# from mininet.cli import CLI
+from mininet.examples.clustercli import ClusterCLI as CLI
 
-from p4runtime_switch import P4RuntimeSwitch
+from mininet.examples.cluster import ( RemoteLink as TCLink, MininetCluster as Mininet, SwitchBinPlacer )
+from p4runtime_switch import RemoteP4RuntimeSwitch as P4RuntimeSwitch, RemoteP4Switch as P4Switch
+from clustermode import RemoteP4Host as P4Host
+
 import p4runtime_lib.simple_controller
 
 def configureP4Switch(**switch_args):
@@ -252,10 +256,13 @@ class ExerciseRunner:
 
         self.topo = ExerciseTopo(self.hosts, self.switches, self.links, self.log_dir, self.bmv2_exe, self.pcap_dir)
 
+        servers = [ 'localhost', '134.197.42.31' ]
         self.net = Mininet(topo = self.topo,
+                      servers = servers,
                       link = TCLink,
                       host = P4Host,
                       switch = defaultSwitchClass,
+                      placement=SwitchBinPlacer,
                       controller = None)
 
     def program_switch_p4runtime(self, sw_name, sw_dict):
@@ -266,11 +273,15 @@ class ExerciseRunner:
         grpc_port = sw_obj.grpc_port
         device_id = sw_obj.device_id
         runtime_json = sw_dict['runtime_json']
-        self.logger('Configuring switch %s using P4Runtime with file %s' % (sw_name, runtime_json))
+
+        conf = self.net.topo.nodeInfo(sw_name)
+        print "[configuration] " + str(conf)
+
+        self.logger('Configuring switch %s@%s using P4Runtime with file %s' % (sw_name, conf['serverIP'], runtime_json))
         with open(runtime_json, 'r') as sw_conf_file:
             outfile = '%s/%s-p4runtime-requests.txt' %(self.log_dir, sw_name)
             p4runtime_lib.simple_controller.program_switch(
-                addr='127.0.0.1:%d' % grpc_port,
+                addr='{}:{}'.format( conf['serverIP'], grpc_port),
                 device_id=device_id,
                 sw_conf_file=sw_conf_file,
                 workdir=os.getcwd(),
