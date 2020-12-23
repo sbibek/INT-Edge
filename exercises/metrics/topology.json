@@ -1,51 +1,43 @@
 {
     "hosts": {
-       "h1": {"ip": "192.168.1.10/24", "mac": "08:00:00:00:01:11",
-                "commands":["route add default gw 192.168.1.1 dev eth0",
-                            "arp -i eth0 -s 192.168.1.1 08:00:00:00:01:00"
-                           ]},
-
-        "h2": {"ip": "192.168.2.10/24", "mac": "08:00:00:00:02:11",
-                 "commands":["route add default gw 192.168.2.1 dev eth0",
-                             "arp -i eth0 -s 192.168.2.1 08:00:00:00:02:00"
-                            ]},
-
-        "h3": {"ip": "192.168.3.10/24", "mac": "08:00:00:00:03:11",
-               "commands":["route add default gw 192.168.3.1 dev eth0",
-                            "arp -i eth0 -s 192.168.3.1 08:00:00:00:03:00"
-                            ]},
-
-        "h4": {"ip": "192.168.4.10/24", "mac": "08:00:00:00:04:11",
-                 "commands":["route add default gw 192.168.4.1 dev eth0",
-                             "arp -i eth0 -s 192.168.4.1 08:00:00:00:04:00"
-                           ]},
-
-        "h5": {"ip": "192.168.5.10/24", "mac": "08:00:00:00:05:11",
-                "commands":["route add default gw 192.168.5.1 dev eth0",
-                            "arp -i eth0 -s 192.168.5.1 08:00:00:00:05:00"
-                            ]},
-
-        "h6": {"ip": "192.168.6.10/24", "mac": "08:00:00:00:06:11",
-                "commands":["route add default gw 192.168.6.1 dev eth0",
-                            "arp -i eth0 -s 192.168.6.1 08:00:00:00:06:00"
-                            ]}
+        "h1": {
+            "ip": "192.168.1.10/24",
+            "mac": "08:00:00:00:01:11",
+            "commands": [
+                "route add default gw 192.168.1.1 dev eth0",
+                "arp -i eth0 -s 192.168.1.1 08:00:00:00:01:00"
+            ]
+        },
+        "h2": {
+            "ip": "192.168.2.10/24",
+            "mac": "08:00:00:00:02:11",
+            "commands": [
+                "route add default gw 192.168.2.1 dev eth0",
+                "arp -i eth0 -s 192.168.2.1 08:00:00:00:02:00"
+            ]
+        }
     },
     "switches": {
-        "s1": { "runtime_json" : "s1-runtime.json" },
-        "s2": { "runtime_json" : "s2-runtime.json" },
-        "s3": { "runtime_json" : "s3-runtime.json" },
-        "s4": { "runtime_json" : "s4-runtime.json" },
-        "s5": { "runtime_json" : "s5-runtime.json" },
-        "s6": { "runtime_json" : "s6-runtime.json" },
-        "s7": { "runtime_json" : "s7-runtime.json" },
-        "s8": { "runtime_json" : "s8-runtime.json" },
-        "s9": { "runtime_json" : "s9-runtime.json" }
+        "s1": {
+            "runtime_json": "s1-runtime.json"
+        },
+        "s2": {
+            "runtime_json": "s2-runtime.json"
+        }
     },
     "links": [
-        ["h1","s1-p1"], ["h2", "s2-p1"], ["h3","s3-p1"], ["h4", "s4-p1"], ["h5","s5-p1"], ["h6","s6-p1"],
-
-        ["s1-p2", "s7-p3"], ["s2-p2", "s7-p4"], ["s3-p2", "s9-p3"], ["s4-p2", "s9-p4"], ["s5-p2", "s8-p4"], ["s6-p2", "s8-p3"],
-
-        ["s7-p1", "s8-p2"], ["s8-p1", "s9-p2"], ["s9-p1", "s7-p2"]
-    ]
+        [
+            "h1",
+            "s1-p1"
+        ],
+        [
+            "h2",
+            "s2-p1"
+        ],
+        
+        [
+            "s1-p2",
+            "s2-p2"
+        ]
+    ] 
 }
