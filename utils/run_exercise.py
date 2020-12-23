@@ -28,6 +28,7 @@ from mininet.net import Mininet
 from mininet.topo import Topo
 from mininet.link import TCLink
 from mininet.cli import CLI
+from p4runtime_switch import P4RuntimeSwitch,
 # from mininet.examples.clustercli import ClusterCLI as CLI
 
 # from mininet.examples.cluster import ( RemoteLink as TCLink, MininetCluster as Mininet, SwitchBinPlacer )
