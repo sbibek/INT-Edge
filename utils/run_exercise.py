@@ -28,13 +28,8 @@ from mininet.net import Mininet
 from mininet.topo import Topo
 from mininet.link import TCLink
 from mininet.cli import CLI
+
 from p4runtime_switch import P4RuntimeSwitch
-# from mininet.examples.clustercli import ClusterCLI as CLI
-
-# from mininet.examples.cluster import ( RemoteLink as TCLink, MininetCluster as Mininet, SwitchBinPlacer )
-# from p4runtime_switch import RemoteP4RuntimeSwitch as P4RuntimeSwitch, RemoteP4Switch as P4Switch
-# from clustermode import RemoteP4Host as P4Host
-
 import p4runtime_lib.simple_controller
 
 def configureP4Switch(**switch_args):
@@ -73,7 +68,6 @@ class ExerciseTopo(Topo):
     """ The mininet topology class for the P4 tutorial exercises.
     """
     def __init__(self, hosts, switches, links, log_dir, bmv2_exe, pcap_dir, **opts):
-        print links
         Topo.__init__(self, **opts)
         host_links = []
         switch_links = []
@@ -131,17 +125,13 @@ class ExerciseRunner:
             log_dir  : string   // directory for mininet log files
             pcap_dir : string   // directory for mininet switch pcap files
             quiet    : bool     // determines if we print logger messages
-
             hosts    : dict<string, dict> // mininet host names and their associated properties
             switches : dict<string, dict> // mininet switch names and their associated properties
             links    : list<dict>         // list of mininet link properties
-
             switch_json : string // json of the compiled p4 example
             bmv2_exe    : string // name or path of the p4 switch binary
-
             topo : Topo object   // The mininet topology instance
             net : Mininet object // The mininet instance
-
     """
     def logger(self, *items):
         if not self.quiet:
@@ -159,7 +149,6 @@ class ExerciseRunner:
                        switch_json, bmv2_exe='simple_switch', quiet=False):
         """ Initializes some attributes and reads the topology json. Does not
             actually run the exercise. Use run_exercise() for that.
-
             Arguments:
                 topo_file : string    // A json file which describes the exercise's
                                          mininet topology.
@@ -242,7 +231,6 @@ class ExerciseRunner:
 
     def create_network(self):
         """ Create the mininet network object, and store it as self.net.
-
             Side effects:
                 - Mininet topology instance stored as self.topo
                 - Mininet instance stored as self.net
@@ -257,13 +245,10 @@ class ExerciseRunner:
 
         self.topo = ExerciseTopo(self.hosts, self.switches, self.links, self.log_dir, self.bmv2_exe, self.pcap_dir)
 
-        # servers = [ 'localhost', '134.197.42.31' ]
         self.net = Mininet(topo = self.topo,
-                    #   servers = servers,
                       link = TCLink,
                       host = P4Host,
                       switch = defaultSwitchClass,
-                    #   placement=SwitchBinPlacer,
                       controller = None)
 
     def program_switch_p4runtime(self, sw_name, sw_dict):
@@ -274,15 +259,11 @@ class ExerciseRunner:
         grpc_port = sw_obj.grpc_port
         device_id = sw_obj.device_id
         runtime_json = sw_dict['runtime_json']
-
-        conf = self.net.topo.nodeInfo(sw_name)
-        print "[configuration] " + str(conf)
-
-        self.logger('Configuring switch %s@%s using P4Runtime with file %s' % (sw_name, conf['serverIP'], runtime_json))
+        self.logger('Configuring switch %s using P4Runtime with file %s' % (sw_name, runtime_json))
         with open(runtime_json, 'r') as sw_conf_file:
             outfile = '%s/%s-p4runtime-requests.txt' %(self.log_dir, sw_name)
             p4runtime_lib.simple_controller.program_switch(
-                addr='{}:{}'.format( conf['serverIP'], grpc_port),
+                addr='127.0.0.1:%d' % grpc_port,
                 device_id=device_id,
                 sw_conf_file=sw_conf_file,
                 workdir=os.getcwd(),
@@ -328,7 +309,6 @@ class ExerciseRunner:
 
     def do_net_cli(self):
         """ Starts up the mininet CLI and prints some helpful output.
-
             Assumes:
                 - A mininet instance is stored as self.net and self.net.start() has
                   been called.
@@ -397,4 +377,3 @@ if __name__ == '__main__':
                               args.switch_json, args.behavioral_exe, args.quiet)
 
     exercise.run_exercise()
-
