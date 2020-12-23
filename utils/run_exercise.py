@@ -22,17 +22,17 @@
 import os, sys, json, subprocess, re, argparse
 from time import sleep
 
-# from p4_mininet import P4Switch, P4Host
+from p4_mininet import P4Switch, P4Host
 
-# from mininet.net import Mininet
+from mininet.net import Mininet
 from mininet.topo import Topo
-# from mininet.link import TCLink
-# from mininet.cli import CLI
-from mininet.examples.clustercli import ClusterCLI as CLI
+from mininet.link import TCLink
+from mininet.cli import CLI
+# from mininet.examples.clustercli import ClusterCLI as CLI
 
-from mininet.examples.cluster import ( RemoteLink as TCLink, MininetCluster as Mininet, SwitchBinPlacer )
-from p4runtime_switch import RemoteP4RuntimeSwitch as P4RuntimeSwitch, RemoteP4Switch as P4Switch
-from clustermode import RemoteP4Host as P4Host
+# from mininet.examples.cluster import ( RemoteLink as TCLink, MininetCluster as Mininet, SwitchBinPlacer )
+# from p4runtime_switch import RemoteP4RuntimeSwitch as P4RuntimeSwitch, RemoteP4Switch as P4Switch
+# from clustermode import RemoteP4Host as P4Host
 
 import p4runtime_lib.simple_controller
 
