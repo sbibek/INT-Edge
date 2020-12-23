@@ -28,7 +28,7 @@ from mininet.net import Mininet
 from mininet.topo import Topo
 from mininet.link import TCLink
 from mininet.cli import CLI
-from p4runtime_switch import P4RuntimeSwitch,
+from p4runtime_switch import P4RuntimeSwitch
 # from mininet.examples.clustercli import ClusterCLI as CLI
 
 # from mininet.examples.cluster import ( RemoteLink as TCLink, MininetCluster as Mininet, SwitchBinPlacer )
@@ -257,13 +257,13 @@ class ExerciseRunner:
 
         self.topo = ExerciseTopo(self.hosts, self.switches, self.links, self.log_dir, self.bmv2_exe, self.pcap_dir)
 
-        servers = [ 'localhost', '134.197.42.31' ]
+        # servers = [ 'localhost', '134.197.42.31' ]
         self.net = Mininet(topo = self.topo,
-                      servers = servers,
+                    #   servers = servers,
                       link = TCLink,
                       host = P4Host,
                       switch = defaultSwitchClass,
-                      placement=SwitchBinPlacer,
+                    #   placement=SwitchBinPlacer,
                       controller = None)
 
     def program_switch_p4runtime(self, sw_name, sw_dict):
