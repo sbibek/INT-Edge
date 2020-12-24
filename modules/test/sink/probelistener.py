@@ -14,7 +14,7 @@ class ProbeListener:
         
         # now we extract the information on this packet
         format = ">IIIIIIIII"
-        messageLen = 13 
+        messageLen = 11 
         linkinfolen = 5 
 
         payload = pkt[UDP].payload.load
@@ -23,7 +23,7 @@ class ProbeListener:
 
         data = []
         for i in range(hops):
-            hop = struct.unpack(">BIII",payload[:messageLen])
+            hop = struct.unpack(">BIIH",payload[:messageLen])
             payload = payload[messageLen:]
 
             linkinfo = {}
