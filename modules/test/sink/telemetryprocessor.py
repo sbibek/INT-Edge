@@ -16,6 +16,13 @@ class TelemetryProcessor:
         self.currentState = {"hop":{}, "link":{}}
 
         self.__initLogger()
+        self.log_ = [open('/home/bibek/xyz1.csv', 'w'), open('/home/bibek/xyz2.csv','w')]
+
+    def csvlog(self, i, data):
+        lg = open('/home/bibek/xyz{}.csv'.format(i), 'a')
+        lg.write("{}\n".format(data))
+        lg.close()
+
 
     def process(self, _data):
         try:
@@ -75,6 +82,8 @@ class TelemetryProcessor:
             print("switch Id: {}, status: {} ".format(swid, self.congestionLevel(qoccupancy)))
             print('     Queue occupancy: {}%, hop latency: {} microseconds'.format(qoccupancy, hop))
             print('')
+
+            self.csvlog(int(swid),hop)
 
         # print("link latencies ")
         for k in self.rolling_linklatency:
