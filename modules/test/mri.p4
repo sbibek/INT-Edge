@@ -125,8 +125,8 @@ control MyEgress(inout headers hdr,
         hop_latency_t.write(0, 0);
         q_depth_t.write(0 , 0);
 
-        hdr.udp.length_ = hdr.udp.length_ + 26;
-    	hdr.ipv4.totalLen = hdr.ipv4.totalLen + 26;
+        hdr.udp.length_ = hdr.udp.length_ + 28
+    	hdr.ipv4.totalLen = hdr.ipv4.totalLen + 28;
     }
 
     table swtrace {
