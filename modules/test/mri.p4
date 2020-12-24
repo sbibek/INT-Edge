@@ -158,8 +158,7 @@ control MyEgress(inout headers hdr,
 
         bit<32> current_qdt;
         q_depth_t.read(current_qdt,0);
-        q_depth_t.write(0, current_qdt + (bit<32>)standard_metadata.deq_qdepth );
-
+        q_depth_t.write(0, current_qdt + (bit<32>)standard_metadata.enq_qdepth );
 
       
         //----------------------------
