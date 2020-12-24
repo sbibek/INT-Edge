@@ -69,7 +69,7 @@ header switch_t {
     bit<8> swid;
     bit<32> total_packets;
     bit<32> total_hop_latency;
-    bit<32> total_qdepth;
+    bit<16> total_qdepth;
     link_info_t l0_info;
     link_info_t l1_info;
     link_info_t l2_info;

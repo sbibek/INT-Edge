@@ -28,6 +28,8 @@ register<bit<32>>(255) hash_rand_t;
 register<bit<32>>(MAX_NEIGHBORS) swid_map_t;
 register<bit<32>>(MAX_NEIGHBORS) link_latency_t;
 
+register<bit<48>>(1) testing;
+
 control MyIngress(inout headers hdr,
                   inout metadata meta,
                   inout standard_metadata_t standard_metadata) {
@@ -125,8 +127,8 @@ control MyEgress(inout headers hdr,
         hop_latency_t.write(0, 0);
         q_depth_t.write(0 , 0);
 
-        hdr.udp.length_ = hdr.udp.length_ + 28;
-    	hdr.ipv4.totalLen = hdr.ipv4.totalLen + 28;
+        hdr.udp.length_ = hdr.udp.length_ + 26;
+    	hdr.ipv4.totalLen = hdr.ipv4.totalLen + 26;
     }
 
     table swtrace {
@@ -138,6 +140,8 @@ control MyEgress(inout headers hdr,
     }
 
     apply {
+
+        testing.write(0, standard_metadata.deq_timedelta);
 
         @atomic {
 
