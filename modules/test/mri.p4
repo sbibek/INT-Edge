@@ -28,7 +28,7 @@ register<bit<32>>(255) hash_rand_t;
 register<bit<32>>(MAX_NEIGHBORS) swid_map_t;
 register<bit<32>>(MAX_NEIGHBORS) link_latency_t;
 
-register<bit<48>>(1) testing;
+register<bit<32>>(1) testing;
 
 control MyIngress(inout headers hdr,
                   inout metadata meta,
