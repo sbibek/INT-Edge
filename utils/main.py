@@ -1,6 +1,6 @@
 import os, sys, json, subprocess, re, argparse
 
-CLUSTER = False
+CLUSTER = True
 
 def get_args():
     cwd = os.getcwd()

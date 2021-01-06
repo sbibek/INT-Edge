@@ -32,7 +32,7 @@ class TelemetryProcessor:
                 linkinfo = data[1]
 
                 avgHopLatency = round(totalHopLatency/(totalPackets*1.0),4)
-                avgQOccu = round(totalQdepth/(totalPackets * 64.0)*100,3)
+                avgQOccu = totalQdepth
 
                 if swid not in self.switches:
                     self.switches.append(swid)
@@ -79,8 +79,8 @@ class TelemetryProcessor:
             
             self.currentState["hop"][swid] = {"qoccupancy": qoccupancy, "hoplatency": hop, "congestionlevel": self.congestionLevel(qoccupancy)}
 
-            print("switch Id: {}, status: {} ".format(swid, self.congestionLevel(qoccupancy)))
-            print('     Queue occupancy: {}%, hop latency: {} microseconds'.format(qoccupancy, hop))
+            print("switch Id: {}".format(swid))
+            print('     Queue occupancy: {}, hop latency: {} microseconds'.format(qoccupancy, hop))
             print('')
 
             self.csvlog(int(swid),hop)
