@@ -28,21 +28,24 @@
     "links": [
         [
             "h1",
-            "s1-p1"
+            "s1-p1",
+            20
         ],
         [
             "h2",
-            "s2-p1"
+            "s2-p1",
+            20
         ],
         
         [
             "s1-p2",
-            "s2-p2"
+            "s2-p2",
+	        20
         ]
     ],
     
     "cluster": {
-        "servers": {"serv1": "localhost", "serv2": "134.197.42.48"},
+        "servers": {"serv1": "localhost", "serv2": "localhost"},
         "placement": {
             "serv1": ["s1", "h1"],
             "serv2": ["s2", "h2"]
