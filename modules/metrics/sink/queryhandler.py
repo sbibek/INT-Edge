@@ -23,6 +23,27 @@ class QueryHandler:
         
         resolvedLatencies = sorted(resolvedLatencies, key=lambda x: x[1]) 
         return resolvedLatencies
+    
+    def rankII(self, wrt=1):
+        state = self.processor.getCurrentSnapshot()
+        # state = nstate
+        hop = state['hop']
+        link = state['link']
+
+        # we will first rank on the basis of the queue occupancy
+        pathinfo = paths[wrt]
+        resolvedLatencies = []
+        for destination in pathinfo:
+            path = pathinfo[destination]
+            latency = 0
+            for (a,b) in path:
+                linkab = self.__resolveLink(link, a, b)
+                latency += ( hop[a]['qoccupancy'] )
+            latency += hop[destination]['qoccupancy']
+            resolvedLatencies.append((destination, latency))
+        
+        resolvedLatencies = sorted(resolvedLatencies, key=lambda x: x[1]) 
+        return resolvedLatencies 
 
     def __resolveLink(self, link,  a, b):
         k1, k2 = "{}->{}".format(a,b), "{}->{}".format(b,a)
