@@ -4,14 +4,22 @@ class RollingQ:
         self.data = []
         self.size = size
 
+        self.bypass = True
+
     def push(self, datapoint):
-        self.data.append(datapoint)
-        if len(self.data) == self.size:
-            self.lastRolledValue = self.avg()
-            self.data.pop(0)
+        if self.bypass == True:
+            self.lastRolledValue = datapoint
+        else:
+            self.data.append(datapoint)
+            if len(self.data) == self.size:
+                self.lastRolledValue = self.avg()
+                self.data.pop(0)
         
     def avg(self):
-        if len(self.data) < self.size:
-            return -1
-        return round(sum(self.data)/(self.size * 1.0),3)
+        if self.bypass == True:
+            return self.lastRolledValue
+        else:
+            if len(self.data) < self.size:
+                return -1
+            return round(sum(self.data)/(self.size * 1.0),3)
 

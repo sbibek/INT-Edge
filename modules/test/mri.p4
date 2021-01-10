@@ -22,6 +22,8 @@
 
 register<bit<32>>(1) total_packets;
 register<bit<32>>(1) hop_latency_t;
+register<bit<32>>(1) max_hop_latency_t;
+register<bit<32>>(1) min_hop_latency_t;
 register<bit<32>>(1) q_depth_t;
 
 register<bit<32>>(255) hash_rand_t;
@@ -101,10 +103,14 @@ control MyEgress(inout headers hdr,
         bit<32> current_hlt;
         bit<32> current_qdt;
         bit<48> current_ts;
+        bit<32> max_hlt;
+        bit<32> min_hlt;
 
         total_packets.read(current_packets, 0);
         hop_latency_t.read(current_hlt, 0);
         q_depth_t.read(current_qdt,0);
+        max_hop_latency_t.read(max_hlt, 0);
+        min_hop_latency_t.read(min_hlt, 0);
 
 
         hdr.swtraces[0].setValid();
@@ -112,6 +118,8 @@ control MyEgress(inout headers hdr,
         hdr.swtraces[0].total_packets = current_packets;
         hdr.swtraces[0].total_hop_latency = current_hlt;
         hdr.swtraces[0].total_qdepth =(bit<16>)current_qdt;
+        hdr.swtraces[0].max_hop_latency = (bit<16>) max_hlt; 
+        hdr.swtraces[0].min_hop_latency = (bit<16>) min_hlt;
 
         bit<32> link_latency;
         bit<32> sid;
@@ -125,10 +133,12 @@ control MyEgress(inout headers hdr,
         // now we rest the registers
         total_packets.write(0, 0);
         hop_latency_t.write(0, 0);
+        max_hop_latency_t.write(0,0);
+        min_hop_latency_t.write(0,0);
         q_depth_t.write(0 , 0);
 
-        hdr.udp.length_ = hdr.udp.length_ + 26;
-    	hdr.ipv4.totalLen = hdr.ipv4.totalLen + 26;
+        hdr.udp.length_ = hdr.udp.length_ + 26 + 4;
+    	hdr.ipv4.totalLen = hdr.ipv4.totalLen + 26 + 4;
     }
 
     table swtrace {
@@ -154,6 +164,36 @@ control MyEgress(inout headers hdr,
         bit<32> current_hlt;
         hop_latency_t.read(current_hlt, 0);
         hop_latency_t.write(0, current_hlt + (bit<32>)standard_metadata.deq_timedelta);
+
+        bit<32> current_max_hlt;
+        max_hop_latency_t.read(current_max_hlt, 0);
+        if(current_max_hlt == 0) {
+            // this means its not set
+            // so we need to set both high and low here
+            max_hop_latency_t.write(0, (bit<32>)standard_metadata.deq_timedelta);
+            // min_hop_latency_t.write(0, (bit<32>)standard_metadata.deq_timedelta);
+        } else {
+            // this means the value is set
+            if((bit<32>)standard_metadata.deq_timedelta > current_max_hlt) {
+                // means we update
+                max_hop_latency_t.write(0, (bit<32>)standard_metadata.deq_timedelta);
+            }
+        }
+
+        bit<32> current_min_hlt;
+        min_hop_latency_t.read(current_min_hlt, 0);
+        if(current_min_hlt == 0) {
+            // this means its not set
+            // so we need to set both high and low here
+            // max_hop_latency_t.write(0, (bit<32>)standard_metadata.deq_timedelta);
+            min_hop_latency_t.write(0, (bit<32>)standard_metadata.deq_timedelta);
+        } else {
+            // this means the value is set
+            if((bit<32>)standard_metadata.deq_timedelta < current_min_hlt) {
+                // means we update
+                min_hop_latency_t.write(0, (bit<32>)standard_metadata.deq_timedelta);
+            }
+        }
 
 
         bit<32> current_qdt;

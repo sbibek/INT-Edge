@@ -12,6 +12,8 @@ class TelemetryProcessor:
         self.rolling_avgq = {}
         self.rolling_avghop = {}
         self.rolling_linklatency = {}
+        self.rolling_max_hoplatency = {}
+        self.rolling_min_hoplatency = {}
 
         self.currentState = {"hop":{}, "link":{}}
 
@@ -27,7 +29,10 @@ class TelemetryProcessor:
     def process(self, _data):
         try:
             for data in _data:
-                swid, totalPackets, totalHopLatency, totalQdepth = data[0]
+                swid, totalPackets, totalHopLatency, totalQdepth, max_hop_latency, min_hop_latency = data[0]
+
+                if totalPackets == 0:
+                    continue
 
                 linkinfo = data[1]
 
@@ -44,6 +49,14 @@ class TelemetryProcessor:
                 if swid not in self.rolling_avghop:
                     self.rolling_avghop[swid] = RollingQ()
                 self.rolling_avghop[swid].push(avgHopLatency)
+
+                if swid not in self.rolling_max_hoplatency:
+                    self.rolling_max_hoplatency[swid] = RollingQ()
+                self.rolling_max_hoplatency[swid].push(max_hop_latency)
+
+                if swid not in self.rolling_min_hoplatency:
+                    self.rolling_min_hoplatency[swid] = RollingQ()
+                self.rolling_min_hoplatency[swid].push(min_hop_latency)
 
                 for key in linkinfo:
                     _k = '{}->{}'.format(key, swid)
@@ -73,14 +86,16 @@ class TelemetryProcessor:
             # pps = self.rolling_pps[swid].avg()
             qoccupancy = self.rolling_avgq[swid].lastRolledValue
             hop = self.rolling_avghop[swid].lastRolledValue
+            max_hop = self.rolling_max_hoplatency[swid].lastRolledValue
+            min_hop = self.rolling_min_hoplatency[swid].lastRolledValue
 
             if qoccupancy == -1:
                 return
             
-            self.currentState["hop"][swid] = {"qoccupancy": qoccupancy, "hoplatency": hop, "congestionlevel": self.congestionLevel(qoccupancy)}
+            self.currentState["hop"][swid] = {"qoccupancy": qoccupancy, "hoplatency": hop, "maxhop": max_hop, "minhop":min_hop, "congestionlevel": self.congestionLevel(qoccupancy)}
 
             print("switch Id: {}".format(swid))
-            print('     Queue occupancy: {}, hop latency: {} microseconds'.format(qoccupancy, hop))
+            print('     Queue occupancy: {}, hop latency: {} [{}, {}] microseconds'.format(qoccupancy, hop, min_hop, max_hop))
             print('')
 
             self.csvlog(int(swid),hop)

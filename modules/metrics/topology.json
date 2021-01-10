@@ -142,10 +142,11 @@
     ],
     
     "cluster": {
-        "servers": {"serv1": "localhost", "serv2": "134.197.42.31"},
+        "servers": {"serv1": "localhost", "serv2": "134.197.42.31", "serv3": "134.197.42.204"},
         "placement": {
-            "serv1": ["s1", "s2", "s3", "s4", "s7", "s9", "h1", "h2", "h3", "h4"],
-            "serv2": ["s5", "s6", "s9", "h5", "h6"]
+            "serv1": ["s1", "s2", "s7", "h1", "h2"],
+            "serv2": ["s5", "s6", "s8", "h5", "h6"],
+	    "serv3": ["s3", "s4", "s9", "h3", "h4"]
         }
     }
 }
