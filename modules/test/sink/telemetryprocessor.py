@@ -18,11 +18,12 @@ class TelemetryProcessor:
         self.currentState = {"hop":{}, "link":{}}
 
         self.__initLogger()
-        self.log_ = [open('/home/bibek/xyz1.csv', 'w'), open('/home/bibek/xyz2.csv','w')]
+        # self.log_ = [open('/home/bibek/xyz1.csv', 'w'), open('/home/bibek/xyz2.csv','w')]
 
-    def csvlog(self, i, data):
-        lg = open('/home/bibek/xyz{}.csv'.format(i), 'a')
-        lg.write("{}\n".format(data))
+    def csvlog(self, swid, type, data):
+        lg = open('/home/bibek/sw-{}-{}.csv'.format(swid, type), 'a')
+        strdata = ','.join(map(str, data)) 
+        lg.write("{}\n".format(strdata))
         lg.close()
 
 
@@ -84,10 +85,16 @@ class TelemetryProcessor:
         os.system('clear')
         for swid in self.switches:
             # pps = self.rolling_pps[swid].avg()
+            logd = []
             qoccupancy = self.rolling_avgq[swid].lastRolledValue
             hop = self.rolling_avghop[swid].lastRolledValue
             max_hop = self.rolling_max_hoplatency[swid].lastRolledValue
             min_hop = self.rolling_min_hoplatency[swid].lastRolledValue
+
+            logd.append(qoccupancy)
+            logd.append(hop)
+            logd.append(min_hop)
+            logd.append(max_hop)
 
             if qoccupancy == -1:
                 return
@@ -98,7 +105,7 @@ class TelemetryProcessor:
             print('     Queue occupancy: {}, hop latency: {} [{}, {}] microseconds'.format(qoccupancy, hop, min_hop, max_hop))
             print('')
 
-            self.csvlog(int(swid),hop)
+            self.csvlog(int(swid),'hop', logd)
 
         # print("link latencies ")
         for k in self.rolling_linklatency:
@@ -106,6 +113,10 @@ class TelemetryProcessor:
             if avg > 0.0:
                 self.currentState["link"][k] = {"max": avg}
                 print('     {} : avg: {}  (microseconds)'.format(k, avg))
+                self.csvlog(k, 'link', [avg])
+        
+        self.csvlog(int(swid))
+        
     
     def getCurrentSnapshot(self):
         return self.currentState
