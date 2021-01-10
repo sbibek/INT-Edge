@@ -113,7 +113,7 @@ class TelemetryProcessor:
             if avg > 0.0:
                 self.currentState["link"][k] = {"max": avg}
                 print('     {} : avg: {}  (microseconds)'.format(k, avg))
-                self.csvlog(k, 'link', [avg])
+                self.csvlog(k.replace('>', '-'), 'link', [avg])
         
         # self.csvlog(int(swid))
         
