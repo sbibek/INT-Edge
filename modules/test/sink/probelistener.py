@@ -28,12 +28,14 @@ class ProbeListener:
 
             linkinfo = {}
             for i in range(linkinfolen):
-                sw, ldelay  = struct.unpack(">BH", payload[i*3:(i+1)*3])
+                sw, ldelay  = struct.unpack(">BI", payload[i*5:(i+1)*5])
                 if ldelay > 0:
                     linkinfo[sw] = (ldelay, 0)
 
             data.insert(0, [hop, linkinfo])
-            payload = payload[15:]
+            payload = payload[25:]
+
+        
 
         # send it to telemetry processor
         self.processor.process(data)
