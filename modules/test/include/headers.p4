@@ -72,6 +72,8 @@ header switch_t {
     bit<16> total_qdepth;
     bit<16> max_hop_latency;
     bit<16> min_hop_latency;
+    bit<16> max_qdepth;
+    bit<16> min_qdepth;
     link_info_t l0_info;
     link_info_t l1_info;
     link_info_t l2_info;

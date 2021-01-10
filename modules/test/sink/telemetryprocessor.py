@@ -14,6 +14,10 @@ class TelemetryProcessor:
         self.rolling_linklatency = {}
         self.rolling_max_hoplatency = {}
         self.rolling_min_hoplatency = {}
+        self.rolling_max_qdepth = {}
+        self.rolling_min_qdepth = {}
+
+        self.RtotalPackets = {}
 
         self.currentState = {"hop":{}, "link":{}}
 
@@ -30,14 +34,15 @@ class TelemetryProcessor:
     def process(self, _data):
         try:
             for data in _data:
-                swid, totalPackets, totalHopLatency, totalQdepth, max_hop_latency, min_hop_latency = data[0]
+                swid, totalPackets, totalHopLatency, totalQdepth, max_hop_latency, min_hop_latency, max_qdepth, min_qdepth = data[0]
 
                 if totalPackets == 0:
                     continue
 
                 linkinfo = data[1]
 
-                avgHopLatency = round(totalHopLatency/(totalPackets*1.0),4)
+                # avgHopLatency = round(totalHopLatency/(totalPackets*1.0),4)
+                avgHopLatency = totalHopLatency
                 avgQOccu = totalQdepth
 
                 if swid not in self.switches:
@@ -58,6 +63,18 @@ class TelemetryProcessor:
                 if swid not in self.rolling_min_hoplatency:
                     self.rolling_min_hoplatency[swid] = RollingQ()
                 self.rolling_min_hoplatency[swid].push(min_hop_latency)
+
+                if swid not in self.rolling_max_qdepth:
+                    self.rolling_max_qdepth[swid] = RollingQ()
+                self.rolling_max_qdepth[swid].push(max_qdepth)
+
+                if swid not in self.rolling_min_qdepth:
+                    self.rolling_min_qdepth[swid] = RollingQ()
+                self.rolling_min_qdepth[swid].push(min_qdepth)
+
+                if swid not in self.RtotalPackets:
+                    self.RtotalPackets[swid] = RollingQ()
+                self.RtotalPackets[swid].push(totalPackets)
 
                 for key in linkinfo:
                     _k = '{}->{}'.format(key, swid)
@@ -85,20 +102,20 @@ class TelemetryProcessor:
         os.system('clear')
         for swid in self.switches:
             # pps = self.rolling_pps[swid].avg()
-            logd = []
             qoccupancy = self.rolling_avgq[swid].lastRolledValue
             hop = self.rolling_avghop[swid].lastRolledValue
             max_hop = self.rolling_max_hoplatency[swid].lastRolledValue
             min_hop = self.rolling_min_hoplatency[swid].lastRolledValue
+            max_qdepth = self.rolling_max_qdepth[swid].lastRolledValue
+            min_qdepth = self.rolling_min_qdepth[swid].lastRolledValue
+            total_packets = self.RtotalPackets[swid].lastRolledValue
 
-            logd.append(qoccupancy)
-            logd.append(hop)
-            logd.append(min_hop)
-            logd.append(max_hop)
 
             if qoccupancy == -1:
                 return
             
+            logd = [total_packets, qoccupancy, min_qdepth, max_qdepth, hop, min_hop, max_hop]
+
             self.currentState["hop"][swid] = {"qoccupancy": qoccupancy, "hoplatency": hop, "maxhop": max_hop, "minhop":min_hop, "congestionlevel": self.congestionLevel(qoccupancy)}
 
             print("switch Id: {}".format(swid))
