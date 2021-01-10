@@ -115,7 +115,7 @@ class TelemetryProcessor:
                 print('     {} : avg: {}  (microseconds)'.format(k, avg))
                 self.csvlog(k, 'link', [avg])
         
-        self.csvlog(int(swid))
+        # self.csvlog(int(swid))
         
     
     def getCurrentSnapshot(self):
