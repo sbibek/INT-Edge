@@ -118,8 +118,8 @@ class TelemetryProcessor:
 
             self.currentState["hop"][swid] = {"qoccupancy": qoccupancy, "hoplatency": hop, "maxhop": max_hop, "minhop":min_hop, "congestionlevel": self.congestionLevel(qoccupancy)}
 
-            print("switch Id: {}".format(swid))
-            print('     Queue occupancy: {}, hop latency: {} [{}, {}] microseconds'.format(qoccupancy, hop, min_hop, max_hop))
+            print("switch Id: {}, total packets: {}".format(swid, total_packets))
+            print('     Queue occupancy: {} [{}, {}], hop latency: {} [{}, {}] microseconds'.format(qoccupancy, min_qdepth, max_qdepth, hop, min_hop, max_hop))
             print('')
 
             self.csvlog(int(swid),'hop', logd)
