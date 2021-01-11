@@ -91,9 +91,7 @@ control MyEgress(inout headers hdr,
                  inout standard_metadata_t standard_metadata) {
     action add_swtrace(switchID_t swid) { 
 
-        // add information to the option regarding the current timestamp
-        hdr.ipv4_option.swid = (bit<8>)swid;
-        hdr.ipv4_option.reference_timestamp = standard_metadata.egress_global_timestamp;
+
 
          hdr.mri.count = hdr.mri.count + 1;
          hdr.swtraces.push_front(1);
@@ -150,6 +148,10 @@ control MyEgress(inout headers hdr,
 
         hdr.udp.length_ = hdr.udp.length_ + 44;
     	hdr.ipv4.totalLen = hdr.ipv4.totalLen + 44;
+
+        // add information to the option regarding the current timestamp
+        hdr.ipv4_option.swid = (bit<8>)swid;
+        hdr.ipv4_option.reference_timestamp = standard_metadata.egress_global_timestamp;
     }
 
     table swtrace {
