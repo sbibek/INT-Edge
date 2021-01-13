@@ -3,6 +3,8 @@ from paths import paths, nstate
 class QueryHandler:
     def __init__(self, processor):
         self.processor = processor
+        self.defaultHopValue = 1
+        self.defaultLinkValue = 1
     
     def rank(self, wrt=1):
         state = self.processor.getCurrentSnapshot()
@@ -37,8 +39,8 @@ class QueryHandler:
             path = pathinfo[destination]
             latency = 0
             for (a,b) in path:
-                linkab = self.__resolveLink(link, a, b)
-                latency += ( hop[a]['qoccupancy'] )
+                # linkab = self.__resolveLink(link, a, b)
+                latency += ( hop[a]['qoccupancy'] + self.defaultHopValue + self.defaultLinkValue)
             latency += hop[destination]['qoccupancy']
             resolvedLatencies.append((destination, latency))
         
