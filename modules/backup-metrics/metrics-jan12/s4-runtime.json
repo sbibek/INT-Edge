@@ -95,34 +95,6 @@
         "port": 2
       }
     },
-    {
-      "table": "MyIngress.ipv4_lpm",
-      "match": {
-        "hdr.ipv4.dstAddr": [
-          "192.168.7.0",
-          24
-        ]
-      },
-      "action_name": "MyIngress.ipv4_forward",
-      "action_params": {
-        "dstAddr": "08:00:00:00:09:00",
-        "port": 2
-      }
-    },
-    {
-      "table": "MyIngress.ipv4_lpm",
-      "match": {
-        "hdr.ipv4.dstAddr": [
-          "192.168.8.0",
-          24
-        ]
-      },
-      "action_name": "MyIngress.ipv4_forward",
-      "action_params": {
-        "dstAddr": "08:00:00:00:09:00",
-        "port": 2
-      }
-    },
 
 
     {

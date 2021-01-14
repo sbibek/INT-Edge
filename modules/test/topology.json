@@ -15,6 +15,14 @@
                 "route add default gw 192.168.2.1 dev eth0",
                 "arp -i eth0 -s 192.168.2.1 08:00:00:00:02:00"
             ]
+        },
+        "h3": {
+            "ip": "192.168.3.10/24",
+            "mac": "08:00:00:00:03:11",
+            "commands": [
+                "route add default gw 192.168.3.1 dev eth0",
+                "arp -i eth0 -s 192.168.3.1 08:00:00:00:03:00"
+            ]
         }
     },
     "switches": {
@@ -23,6 +31,9 @@
         },
         "s2": {
             "runtime_json": "s2-runtime.json"
+        },
+        "s3": {
+            "runtime_json": "s3-runtime.json"
         }
     },
     "links": [
@@ -36,10 +47,22 @@
             "s2-p1",
             20
         ],
+
+        [
+            "h3",
+            "s3-p1",
+            20
+        ],
         
         [
             "s1-p2",
             "s2-p2",
+	        20
+        ],
+
+        [
+            "s1-p3",
+            "s3-p2",
 	        20
         ]
     ],
@@ -47,7 +70,7 @@
     "cluster": {
         "servers": {"serv1": "localhost", "serv2": "134.197.42.31"},
         "placement": {
-            "serv1": ["s1", "h1"],
+            "serv1": ["s1", "h1", "s3", "h3"],
             "serv2": ["s2", "h2"]
         }
     }

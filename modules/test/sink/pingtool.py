@@ -28,4 +28,4 @@ def ping(host, count, title):
     #     print(icmp_reply)
 
 
-print(ping('134.197.42.31',5, 'rtt-1'))
+print(ping('192.168.2.10',120, 'rtt-100'))
