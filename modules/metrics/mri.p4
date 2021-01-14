@@ -23,6 +23,7 @@
 register<bit<32>>(1) total_packets;
 register<bit<32>>(1) hop_latency_t;
 register<bit<32>>(1) q_depth_t;
+register<bit<32>>(1) max_qdepth_t;
 
 register<bit<32>>(255) hash_rand_t;
 register<bit<32>>(MAX_NEIGHBORS) swid_map_t;
@@ -99,17 +100,19 @@ control MyEgress(inout headers hdr,
         bit<32> current_hlt;
         bit<32> current_qdt;
         bit<48> current_ts;
+        bit<32> max_qdt;
 
         total_packets.read(current_packets, 0);
         hop_latency_t.read(current_hlt, 0);
         q_depth_t.read(current_qdt,0);
+        max_qdepth_t.read(max_qdt, 0);
 
 
         hdr.swtraces[0].setValid();
         hdr.swtraces[0].swid = (bit<8>)swid;
         hdr.swtraces[0].total_packets = current_packets;
         hdr.swtraces[0].total_hop_latency = current_hlt;
-        hdr.swtraces[0].total_qdepth =(bit<16>)current_qdt;
+        hdr.swtraces[0].total_qdepth =(bit<16>)max_qdt;
 
         bit<32> link_latency;
         bit<32> sid;
@@ -124,6 +127,7 @@ control MyEgress(inout headers hdr,
         total_packets.write(0, 0);
         hop_latency_t.write(0, 0);
         q_depth_t.write(0 , 0);
+        max_qdepth_t.write(0, 0);
 
         hdr.udp.length_ = hdr.udp.length_ + 26;
     	hdr.ipv4.totalLen = hdr.ipv4.totalLen + 26;
@@ -157,7 +161,20 @@ control MyEgress(inout headers hdr,
         q_depth_t.read(current_qdt,0);
         q_depth_t.write(0, current_qdt + (bit<32>)standard_metadata.deq_qdepth );
 
-
+        bit<32> current_max_qdt;
+        max_qdepth_t.read(current_max_qdt, 0);
+        if(current_max_qdt == 0) {
+            // this means its not set
+            // so we need to set both high and low here
+            // max_hop_latency_t.write(0, (bit<32>)standard_metadata.deq_timedelta);
+            max_qdepth_t.write(0, (bit<32>)standard_metadata.deq_qdepth);
+        } else {
+            // this means the value is set
+            if((bit<32>)standard_metadata.deq_qdepth > current_max_qdt) {
+                // means we update
+                max_qdepth_t.write(0, (bit<32>)standard_metadata.deq_qdepth);
+            }
+        }
       
         //----------------------------
         if(hdr.ipv4_option.isValid() && hdr.ipv4_option.option == IPV4_OPTION_MRI && hdr.ipv4_option.reference_timestamp != 0) {
