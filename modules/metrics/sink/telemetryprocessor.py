@@ -30,6 +30,9 @@ class TelemetryProcessor:
             for data in _data:
                 swid, totalPackets, totalHopLatency, totalQdepth = data[0]
 
+                if totalPackets == 0:
+                    continue
+
                 linkinfo = data[1]
 
                 avgHopLatency = round(totalHopLatency/(totalPackets*1.0),4)
