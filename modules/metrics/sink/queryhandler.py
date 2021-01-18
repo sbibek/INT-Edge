@@ -39,9 +39,9 @@ class QueryHandler:
             path = pathinfo[destination]
             latency = 0
             for (a,b) in path:
-                # linkab = self.__resolveLink(link, a, b)
-                latency += ( hop[a]['qoccupancy'] + self.defaultHopValue + self.defaultLinkValue)
-            latency += hop[destination]['qoccupancy']
+                linkab = self.__resolveLink(link, a, b)
+                latency += ( hop[a]['qoccupancy']*2 + linkab['max'])
+            latency += hop[destination]['qoccupancy']*2
             resolvedLatencies.append((destination, latency))
         
         resolvedLatencies = sorted(resolvedLatencies, key=lambda x: x[1]) 
