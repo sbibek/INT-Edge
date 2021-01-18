@@ -188,7 +188,7 @@
     ],
     
     "cluster": {
-        "servers": {"serv1": "localhost", "serv2": "134.197.42.31", "serv3": "134.197.42.204", "serv4": "134.197.42.48"},
+        "servers": {"serv1": "localhost", "serv2": "134.197.42.48", "serv3": "134.197.42.48", "serv4": "134.197.42.48"},
         "placement": {
             "serv1": ["s1", "s2", "s7", "h1", "h2"],
             "serv2": ["s5", "s6", "s8", "h5", "h6"],
