@@ -13,7 +13,7 @@ class MetaClientProcessor(threading.Thread):
         # lets get the swid first
         swid = struct.unpack('>I', self.recvExactly(self.connection, 4))[0]
         print("[mcp] serving rank query for swid {}".format(swid))
-        data = pickle.dumps(self.queryhandler.rankII(swid))
+        data = pickle.dumps(self.queryhandler.rankIII(swid))
         lenInfo = struct.pack(">I", len(data))
         self.connection.sendall(lenInfo)
         self.connection.sendall(data)
