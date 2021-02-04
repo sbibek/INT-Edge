@@ -49,7 +49,7 @@ class QueryHandler:
     
     def bwusage(self, qocc):
         bwusage = 0
-        if qocc <= 1:
+        if qocc > 0 and qocc <= 1:
             bwusage = 20
         elif qocc <= 4:
             bwusage =50
