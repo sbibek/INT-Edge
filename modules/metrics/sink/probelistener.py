@@ -36,7 +36,7 @@ class ProbeListener:
             payload = payload[15:]
             # now per port queue status at egress
             # we have 5 values
-            egress_q = struct.unpack(payload[:20], ">IIIII")
+            egress_q = struct.unpack( ">IIIII", payload[:20])
             data.insert(0, [hop, linkinfo, egress_q])
             payload = payload[20:]
 
