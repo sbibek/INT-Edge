@@ -12,6 +12,7 @@ class TelemetryProcessor:
         self.rolling_avgq = {}
         self.rolling_avghop = {}
         self.rolling_linklatency = {}
+        self.egressQ = {}
 
         self.currentState = {"hop":{}, "link":{}}
 
@@ -34,6 +35,7 @@ class TelemetryProcessor:
                     continue
 
                 linkinfo = data[1]
+                egressQueueInfo = data[2]
 
                 avgHopLatency = round(totalHopLatency/(totalPackets*1.0),4)
                 avgQOccu = totalQdepth
@@ -48,6 +50,10 @@ class TelemetryProcessor:
                 if swid not in self.rolling_avghop:
                     self.rolling_avghop[swid] = RollingQ()
                 self.rolling_avghop[swid].push(avgHopLatency)
+
+                if swid not in self.egressQ:
+                    self.egressQ[swid] = egressQueueInfo
+                
 
                 for key in linkinfo:
                     _k = '{}->{}'.format(key, swid)
@@ -84,7 +90,7 @@ class TelemetryProcessor:
             self.currentState["hop"][swid] = {"qoccupancy": qoccupancy, "hoplatency": hop, "congestionlevel": self.congestionLevel(qoccupancy)}
 
             print("switch Id: {}".format(swid))
-            print('     Queue occupancy: {}, hop latency: {} microseconds'.format(qoccupancy, hop))
+            print('     Queue occupancy: {} ({}), hop latency: {} microseconds'.format(qoccupancy, self.egressQ[swid], hop))
             print('')
 
             # self.csvlog(int(swid),hop)

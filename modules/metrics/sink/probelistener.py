@@ -32,8 +32,14 @@ class ProbeListener:
                 if ldelay > 0:
                     linkinfo[sw] = (ldelay, 0)
 
-            data.insert(0, [hop, linkinfo])
+            
             payload = payload[15:]
+            # now per port queue status at egress
+            # we have 5 values
+            egress_q = struct.unpack(payload[:20], ">IIIII")
+            data.insert(0, [hop, linkinfo, egress_q])
+            payload = payload[20:]
+
 
         # send it to telemetry processor
         self.processor.process(data)
