@@ -19,6 +19,9 @@
                                 hdr.swtraces[0].l##idx##_info.swid = (bit<8>)sid; \
                                 hdr.swtraces[0].l##idx##_info.totalLatency = (bit<16>)link_latency; 
 
+#define UPDATE_QD_FROM_REG(idx) qdepthall_t.read(qd_egress, idx); \
+                                hdr.swtraces[0].p##idx##_qd = (bit<32>)qd_egress;
+
 
 register<bit<32>>(1) total_packets;
 register<bit<32>>(1) hop_latency_t;
@@ -28,6 +31,8 @@ register<bit<32>>(1) max_qdepth_t;
 register<bit<32>>(255) hash_rand_t;
 register<bit<32>>(MAX_NEIGHBORS) swid_map_t;
 register<bit<32>>(MAX_NEIGHBORS) link_latency_t;
+
+register<bit<32>>(5) qdepthall_t;
 
 control MyIngress(inout headers hdr,
                   inout metadata meta,
@@ -86,6 +91,8 @@ control MyEgress(inout headers hdr,
                  inout standard_metadata_t standard_metadata) {
     action add_swtrace(switchID_t swid) { 
 
+        // qdepthall_t.write((bit<32>)standard_metadata.egress_port, (bit<32>)swid);
+
         // add information to the option regarding the current timestamp
         hdr.ipv4_option.swid = (bit<8>)swid;
         hdr.ipv4_option.reference_timestamp = standard_metadata.egress_global_timestamp;
@@ -123,14 +130,26 @@ control MyEgress(inout headers hdr,
         UPDATE_PAYLOAD_FROM_REG(3);
         UPDATE_PAYLOAD_FROM_REG(4);
 
+        bit<32> qd_egress;
+        UPDATE_QD_FROM_REG(0);
+        UPDATE_QD_FROM_REG(1);
+        UPDATE_QD_FROM_REG(2);
+        UPDATE_QD_FROM_REG(3);
+        UPDATE_QD_FROM_REG(4);
+
         // now we rest the registers
         total_packets.write(0, 0);
         hop_latency_t.write(0, 0);
         q_depth_t.write(0 , 0);
         max_qdepth_t.write(0, 0);
+        qdepthall_t.write(0, 0);
+        qdepthall_t.write(1, 0);
+        qdepthall_t.write(2, 0);
+        qdepthall_t.write(3, 0);
+        qdepthall_t.write(4, 0);
 
-        hdr.udp.length_ = hdr.udp.length_ + 26;
-    	hdr.ipv4.totalLen = hdr.ipv4.totalLen + 26;
+        hdr.udp.length_ = hdr.udp.length_ + 46;
+    	hdr.ipv4.totalLen = hdr.ipv4.totalLen + 46;
     }
 
     table swtrace {
@@ -175,6 +194,13 @@ control MyEgress(inout headers hdr,
                 max_qdepth_t.write(0, (bit<32>)standard_metadata.deq_qdepth);
             }
         }
+
+        bit<32> qdepth_for_egress;
+        qdepthall_t.read(qdepth_for_egress, (bit<32>)standard_metadata.egress_port);
+        if((bit<32>)standard_metadata.deq_qdepth > qdepth_for_egress) {
+            qdepthall_t.write((bit<32>)standard_metadata.egress_port, (bit<32>)standard_metadata.deq_qdepth);
+        }
+        
       
         //----------------------------
         if(hdr.ipv4_option.isValid() && hdr.ipv4_option.option == IPV4_OPTION_MRI && hdr.ipv4_option.reference_timestamp != 0) {

@@ -75,6 +75,12 @@ header switch_t {
     link_info_t l2_info;
     link_info_t l3_info;
     link_info_t l4_info;
+
+    bit<32> p0_qd;
+    bit<32> p1_qd;
+    bit<32> p2_qd;
+    bit<32> p3_qd;
+    bit<32> p4_qd;
 }
 
 
