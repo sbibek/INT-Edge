@@ -51,8 +51,8 @@ class TelemetryProcessor:
                     self.rolling_avghop[swid] = RollingQ()
                 self.rolling_avghop[swid].push(avgHopLatency)
 
-                if swid not in self.egressQ:
-                    self.egressQ[swid] = egressQueueInfo
+                # if swid not in self.egressQ:
+                self.egressQ[swid] = egressQueueInfo
                 
 
                 for key in linkinfo:

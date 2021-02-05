@@ -182,18 +182,11 @@ control MyEgress(inout headers hdr,
 
         bit<32> current_max_qdt;
         max_qdepth_t.read(current_max_qdt, 0);
-        if(current_max_qdt == 0) {
-            // this means its not set
-            // so we need to set both high and low here
-            // max_hop_latency_t.write(0, (bit<32>)standard_metadata.deq_timedelta);
-            max_qdepth_t.write(0, (bit<32>)standard_metadata.deq_qdepth);
-        } else {
-            // this means the value is set
-            if((bit<32>)standard_metadata.deq_qdepth > current_max_qdt) {
+        if((bit<32>)standard_metadata.deq_qdepth > current_max_qdt) {
                 // means we update
-                max_qdepth_t.write(0, (bit<32>)standard_metadata.deq_qdepth);
-            }
+            max_qdepth_t.write(0, (bit<32>)standard_metadata.deq_qdepth);
         }
+        
 
         bit<32> qdepth_for_egress;
         qdepthall_t.read(qdepth_for_egress, (bit<32>)standard_metadata.egress_port);
