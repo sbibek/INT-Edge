@@ -1,4 +1,4 @@
-from paths import paths, pathsWithEgress, nstate
+from paths import paths, pathsWithEgress, nstate, bandwidthf
 
 class QueryHandler:
     def __init__(self, processor):
@@ -96,31 +96,61 @@ class QueryHandler:
 
         pathinfo = pathsWithEgress[wrt]
 
+        referenceBandwidthBands = {
+            0: 0,
+            20: 1,
+            50: 4,
+            80: 24
+        }
+
 
         for destination in pathinfo:
             lasthop = -1
             hop = True
+            # record the total latency information
+            totalLatency = 0
+            # then we record minimum available bandwidth in specific link
+            minAvailableBandwidth = 0
+            minAvailableBandwidthLink = (-1,-1)
+
             for p in pathinfo[destination]:
                 if hop == True:
                     if lasthop != -1:
                         # then there is a pair link so make it
                         linkab = self.__resolveLink(link, lasthop, p)
-                        print("D({}->{}) = {}".format(lasthop, p, linkab['max']))                    
+                        totalLatency += linkab['max']
+                        # print("D({}->{}) = {}".format(lasthop, p, linkab['max']))                    
                     # now make this the last hop that was encountered
                     lasthop = p
                 else:
                     # means this is a port of lasthop
                     q = self.__getEgressPortQueue(hopinfo, lasthop, p)
-                    print("Q({}::{}) = {}".format(lasthop, p, q))
+                    availablebw = self.__calculateAvalilableBandwidth(lasthop, p, q, referenceBandwidthBands)
+                    print("BW({}::{}) = {} Mbit/s".format(lasthop, p, availablebw))
                 
                 hop = True if hop is False else False
         return [(1,2), (3,4)]
 
-
-
     def __getEgressPortQueue(self,hopinfo, hop, port):
         qinfo = hopinfo[hop]["egressQ"][port]
         return qinfo
+
+    def __calculateAvalilableBandwidth(self, hop, egress_port, queueOccupancy, refbands):
+        # lets calculate where in the reference band we are
+        bwusage = 0
+        if queueOccupancy > 0:
+            for bw in refbands:
+                if queueOccupancy <= refbands[bw]:
+                    bwusage = bw
+                    break
+        # if we are here and still the bwusage is zero when queueoccupany is not zero, then its 100% usage
+        if queueOccupancy > 0 and bwusage == 0:
+            bwusage = 100
+        
+        available = 100 - bwusage
+        bandwidth = bandwidthf[hop][egress_port]
+        return available/100.0*bandwidth
+
 
 
     def __resolveLink(self, link,  a, b):

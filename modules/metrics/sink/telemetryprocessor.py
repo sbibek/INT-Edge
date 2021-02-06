@@ -17,6 +17,8 @@ class TelemetryProcessor:
         self.currentState = {"hop":{}, "link":{}}
 
         self.__initLogger()
+
+        self.printenabled = True
         # self.log_ = [open('/home/bibek/xyz1.csv', 'w'), open('/home/bibek/xyz2.csv','w')]
 
     def csvlog(self, i, data):
@@ -78,7 +80,9 @@ class TelemetryProcessor:
             return "HIGH_CONGESTION"
     
     def log(self):
-        os.system('clear')
+        if self.printenabled == True:
+            os.system('clear')
+            
         for swid in self.switches:
             # pps = self.rolling_pps[swid].avg()
             qoccupancy = self.rolling_avgq[swid].lastRolledValue
@@ -88,9 +92,10 @@ class TelemetryProcessor:
                 return
             
             self.currentState["hop"][swid] = {"qoccupancy": qoccupancy, "hoplatency": hop, "congestionlevel": self.congestionLevel(qoccupancy), "egressQ": self.egressQ[swid]}
-            print("switch Id: {}".format(swid))
-            print('     Queue occupancy: {} ({}), hop latency: {} microseconds'.format(qoccupancy, self.egressQ[swid], hop))
-            print('')
+            if self.printenabled == True:
+                print("switch Id: {}".format(swid))
+                print('     Queue occupancy: {} ({}), hop latency: {} microseconds'.format(qoccupancy, self.egressQ[swid], hop))
+                print('')
 
             # self.csvlog(int(swid),hop)
 
@@ -99,7 +104,8 @@ class TelemetryProcessor:
             avg = self.rolling_linklatency[k].lastRolledValue
             if avg > 0.0:
                 self.currentState["link"][k] = {"max": avg}
-                print('     {} : avg: {}  (microseconds)'.format(k, avg))
+                if self.printenabled == True:
+                    print('     {} : avg: {}  (microseconds)'.format(k, avg))
     
     def getCurrentSnapshot(self):
         return self.currentState
