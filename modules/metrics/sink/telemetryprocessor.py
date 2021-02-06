@@ -87,8 +87,7 @@ class TelemetryProcessor:
             if qoccupancy == -1:
                 return
             
-            self.currentState["hop"][swid] = {"qoccupancy": qoccupancy, "hoplatency": hop, "congestionlevel": self.congestionLevel(qoccupancy)}
-
+            self.currentState["hop"][swid] = {"qoccupancy": qoccupancy, "hoplatency": hop, "congestionlevel": self.congestionLevel(qoccupancy), "egressQ": self.egressQ[swid]}
             print("switch Id: {}".format(swid))
             print('     Queue occupancy: {} ({}), hop latency: {} microseconds'.format(qoccupancy, self.egressQ[swid], hop))
             print('')

@@ -1,4 +1,4 @@
-from paths import paths, nstate
+from paths import paths, pathsWithEgress, nstate
 
 class QueryHandler:
     def __init__(self, processor):
@@ -88,7 +88,36 @@ class QueryHandler:
         resolvedLatencies = sorted(resolvedLatencies, key=lambda x: x[1]) 
         return resolvedLatencies 
 
+    def rankIV(self, wrt=1):
+        state = self.processor.getCurrentSnapshot()
+        # state = nstate
+        hop = state['hop']
+        link = state['link']      
 
+        pathinfo = pathsWithEgress[wrt]
+
+        lasthop = -1
+        hop = True
+        for p in pathinfo:
+            if hop == True:
+                if lasthop != -1:
+                    # then there is a pair link so make it
+                    linkab = self.__resolveLink(link, lasthop, p)
+                    print("D({}->{}) = {}".format(lasthop, p, linkab['max']))                    
+                # now make this the last hop that was encountered
+                lasthop = p
+            else:
+                # means this is a port of lasthop
+                q = self.__getEgressPortQueue(hop, lasthop, p)
+                print("Q({}::{}) = {}".format(lasthop, p, ))
+            
+            hop = True if hop is False else False
+        return [(1,2), (3,4)]
+
+
+
+    def __getEgressPortQueue(self,hopinfo, hop, port):
+        return qinfo = hopinfo[hop]["egressQ"][port]
 
 
     def __resolveLink(self, link,  a, b):
