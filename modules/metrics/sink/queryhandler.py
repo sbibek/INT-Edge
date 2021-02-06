@@ -117,7 +117,8 @@ class QueryHandler:
 
 
     def __getEgressPortQueue(self,hopinfo, hop, port):
-        return qinfo = hopinfo[hop]["egressQ"][port]
+        qinfo = hopinfo[hop]["egressQ"][port]
+        return qinfo
 
 
     def __resolveLink(self, link,  a, b):
