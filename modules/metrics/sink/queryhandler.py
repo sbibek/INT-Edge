@@ -91,7 +91,7 @@ class QueryHandler:
     def rankIV(self, wrt=1):
         state = self.processor.getCurrentSnapshot()
         # state = nstate
-        hopInfo = state['hop']
+        hopinfo = state['hop']
         link = state['link']      
 
         pathinfo = pathsWithEgress[wrt]
