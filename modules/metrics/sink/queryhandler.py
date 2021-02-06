@@ -91,7 +91,7 @@ class QueryHandler:
     def rankIV(self, wrt=1):
         state = self.processor.getCurrentSnapshot()
         # state = nstate
-        hop = state['hop']
+        hopInfo = state['hop']
         link = state['link']      
 
         pathinfo = pathsWithEgress[wrt]
@@ -108,7 +108,7 @@ class QueryHandler:
                 lasthop = p
             else:
                 # means this is a port of lasthop
-                q = self.__getEgressPortQueue(hop, lasthop, p)
+                q = self.__getEgressPortQueue(hopinfo, lasthop, p)
                 print("Q({}::{}) = {}".format(lasthop, p, ))
             
             hop = True if hop is False else False
