@@ -16,9 +16,11 @@ class TelemetryProcessor:
 
         self.currentState = {"hop":{}, "link":{}}
 
+        self.printenabled = False
+
         self.__initLogger()
 
-        self.printenabled = True
+        
         # self.log_ = [open('/home/bibek/xyz1.csv', 'w'), open('/home/bibek/xyz2.csv','w')]
 
     def csvlog(self, i, data):
@@ -82,7 +84,7 @@ class TelemetryProcessor:
     def log(self):
         if self.printenabled == True:
             os.system('clear')
-            
+
         for swid in self.switches:
             # pps = self.rolling_pps[swid].avg()
             qoccupancy = self.rolling_avgq[swid].lastRolledValue
