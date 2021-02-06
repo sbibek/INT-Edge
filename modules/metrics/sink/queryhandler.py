@@ -96,22 +96,24 @@ class QueryHandler:
 
         pathinfo = pathsWithEgress[wrt]
 
-        lasthop = -1
-        hop = True
-        for p in pathinfo:
-            if hop == True:
-                if lasthop != -1:
-                    # then there is a pair link so make it
-                    linkab = self.__resolveLink(link, lasthop, p)
-                    print("D({}->{}) = {}".format(lasthop, p, linkab['max']))                    
-                # now make this the last hop that was encountered
-                lasthop = p
-            else:
-                # means this is a port of lasthop
-                q = self.__getEgressPortQueue(hopinfo, lasthop, p)
-                print("Q({}::{}) = {}".format(lasthop, p, ))
-            
-            hop = True if hop is False else False
+
+        for destination in pathinfo:
+            lasthop = -1
+            hop = True
+            for p in pathinfo[destination]:
+                if hop == True:
+                    if lasthop != -1:
+                        # then there is a pair link so make it
+                        linkab = self.__resolveLink(link, lasthop, p)
+                        print("D({}->{}) = {}".format(lasthop, p, linkab['max']))                    
+                    # now make this the last hop that was encountered
+                    lasthop = p
+                else:
+                    # means this is a port of lasthop
+                    q = self.__getEgressPortQueue(hopinfo, lasthop, p)
+                    print("Q({}::{}) = {}".format(lasthop, p, q))
+                
+                hop = True if hop is False else False
         return [(1,2), (3,4)]
 
 
