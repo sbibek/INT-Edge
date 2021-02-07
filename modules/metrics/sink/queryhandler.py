@@ -136,7 +136,7 @@ class QueryHandler:
                 
                 hop = True if hop is False else False
             result.append((destination, minAvailableBandwidth))
-        return result
+        return sorted(result, key=lambda x: x[1], reverse=True)
 
     def __getEgressPortQueue(self,hopinfo, hop, port):
         qinfo = hopinfo[hop]["egressQ"][port]
