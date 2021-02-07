@@ -103,14 +103,14 @@ class QueryHandler:
             80: 24
         }
 
-
+        result = []
         for destination in pathinfo:
             lasthop = -1
             hop = True
             # record the total latency information
             totalLatency = 0
             # then we record minimum available bandwidth in specific link
-            minAvailableBandwidth = 0
+            minAvailableBandwidth = -1
             minAvailableBandwidthLink = (-1,-1)
 
             for p in pathinfo[destination]:
@@ -126,10 +126,17 @@ class QueryHandler:
                     # means this is a port of lasthop
                     q = self.__getEgressPortQueue(hopinfo, lasthop, p)
                     availablebw = self.__calculateAvalilableBandwidth(lasthop, p, q, referenceBandwidthBands)
-                    print("BW({}::{}) = {} Mbit/s".format(lasthop, p, availablebw))
+                    # print("BW({}::{}) = {} Mbit/s".format(lasthop, p, availablebw))
+
+                    if minAvailableBandwidth == -1:
+                        minAvailableBandwidth = availablebw
+                    
+                    if availablebw < minAvailableBandwidth:
+                        minAvailableBandwidth = availablebw
                 
                 hop = True if hop is False else False
-        return [(1,2), (3,4)]
+            result.append((destination, minAvailableBandwidth))
+        return result
 
     def __getEgressPortQueue(self,hopinfo, hop, port):
         qinfo = hopinfo[hop]["egressQ"][port]
