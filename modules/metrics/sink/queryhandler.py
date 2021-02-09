@@ -150,7 +150,7 @@ class QueryHandler:
             0: 0
         }
         
-        sortingkey = [1,0,0,2,3,1,1]
+        sortingkey = [10,0,0,2,3,10,10]
         result = []
         for destination in pathinfo:
             lasthop = -1
