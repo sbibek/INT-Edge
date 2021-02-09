@@ -138,9 +138,62 @@ class QueryHandler:
             result.append((destination, minAvailableBandwidth))
         return sorted(result, key=lambda x: x[1], reverse=True)
 
+    def rankV(self, wrt=1):
+        state = self.processor.getCurrentSnapshot()
+        # state = nstate
+        hopinfo = state['hop']
+        link = state['link']      
+
+        pathinfo = pathsWithEgress[wrt]
+
+        referenceBandwidthBands = {
+            0: 0
+        }
+
+        result = []
+        for destination in pathinfo:
+            lasthop = -1
+            hop = True
+            # record the total latency information
+            totalLatency = 0
+            # then we record minimum available bandwidth in specific link
+            minAvailableBandwidth = -1
+            minAvailableBandwidthLink = (-1,-1)
+
+            for p in pathinfo[destination]:
+                if hop == True:
+                    if lasthop != -1:
+                        # then there is a pair link so make it
+                        linkab = self.__resolveLink(link, lasthop, p)
+                        totalLatency += linkab['max']
+                        # print("D({}->{}) = {}".format(lasthop, p, linkab['max']))                    
+                    # now make this the last hop that was encountered
+                    lasthop = p
+                else:
+                    # means this is a port of lasthop
+                    q = self.__getEgressPortQueue(hopinfo, lasthop, p)
+                    availablebw = self.__calculateAvalilableBandwidthV(lasthop, p, q, referenceBandwidthBands)
+                    # print("BW({}::{}) = {} Mbit/s".format(lasthop, p, availablebw))
+
+                    if minAvailableBandwidth == -1:
+                        minAvailableBandwidth = availablebw
+                    
+                    if availablebw < minAvailableBandwidth:
+                        minAvailableBandwidth = availablebw
+                
+                hop = True if hop is False else False
+            result.append((destination, minAvailableBandwidth))
+        return sorted(result, key=lambda x: x[1], reverse=True)
+
     def __getEgressPortQueue(self,hopinfo, hop, port):
         qinfo = hopinfo[hop]["egressQ"][port]
         return qinfo
+
+    def __calculateAvalilableBandwidthV(self, hop, egress_port, queueOccupancy, refbands):
+        if queueOccupancy == 0:
+            return bandwidthf[hop][egress_port]
+        else: 
+            return 0
 
     def __calculateAvalilableBandwidth(self, hop, egress_port, queueOccupancy, refbands):
         # lets calculate where in the reference band we are
