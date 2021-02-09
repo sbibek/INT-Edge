@@ -149,7 +149,8 @@ class QueryHandler:
         referenceBandwidthBands = {
             0: 0
         }
-
+        
+        sortingkey = [1,0,0,0,0,1,1]
         result = []
         for destination in pathinfo:
             lasthop = -1
@@ -183,6 +184,7 @@ class QueryHandler:
                 
                 hop = True if hop is False else False
             result.append((destination, minAvailableBandwidth))
+        result = [x for _,x in sorted(zip(sortingkey,result), key=lambda x:x[0], reverse=True)]
         return sorted(result, key=lambda x: x[1], reverse=True)
 
     def __getEgressPortQueue(self,hopinfo, hop, port):
