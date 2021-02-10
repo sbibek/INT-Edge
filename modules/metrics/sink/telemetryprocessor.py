@@ -3,6 +3,8 @@ import threading
 import time
 import os
 from RollingQ import RollingQ
+import time
+from conf import conf
 
 class TelemetryProcessor:
     def __init__(self):
@@ -13,10 +15,12 @@ class TelemetryProcessor:
         self.rolling_avghop = {}
         self.rolling_linklatency = {}
         self.egressQ = {}
+        self.egressQUpdated = {}
 
         self.currentState = {"hop":{}, "link":{}}
+        self.period = conf.getPeriod()
 
-        self.printenabled = False
+        self.printenabled = True
 
         self.__initLogger()
 
@@ -56,7 +60,15 @@ class TelemetryProcessor:
                 self.rolling_avghop[swid].push(avgHopLatency)
 
                 # if swid not in self.egressQ:
-                self.egressQ[swid] = egressQueueInfo
+                currentTime  = time.time()
+                if swid not in self.egressQUpdated:
+                    self.egressQUpdated[swid] = currentTime
+                    self.egressQ[swid] = egressQueueInfo
+                else:
+                    # this means we can update only if we are over the time
+                    if currentTime - self.egressQUpdated[swid] > self.period:
+                        self.egressQ[swid] = egressQueueInfo
+                        self.egressQUpdated[swid] = currentTime
                 
 
                 for key in linkinfo:

@@ -5,5 +5,6 @@
     },
     "metaserver": {
         "port": 7676
-    }
+    },
+    "period": 5
 }

@@ -16,5 +16,8 @@ class Configuration:
     def getMetaServerConf(self):
         return self.conf['metaserver']
 
+    def getPeriod(self):
+        return self.conf["period"]
+
 # instantiate a variable
 conf = Configuration()
