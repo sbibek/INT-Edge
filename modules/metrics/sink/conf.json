@@ -1,0 +1,10 @@
+{
+    "listen": {
+        "interface": "eth0",
+        "port": 4321
+    },
+    "metaserver": {
+        "port": 7676
+    },
+    "period": 5
+}

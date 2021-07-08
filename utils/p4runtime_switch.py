@@ -23,6 +23,7 @@ from mininet.log import info, error, debug
 
 from p4_mininet import P4Switch, SWITCH_START_TIMEOUT
 from netstat import check_listening_on_port
+from mininet.examples.cluster import RemoteMixin
 
 class P4RuntimeSwitch(P4Switch):
     "BMv2 switch with gRPC support"
@@ -127,11 +128,20 @@ class P4RuntimeSwitch(P4Switch):
 
         pid = None
         with tempfile.NamedTemporaryFile() as f:
+            # print '[running remote={}] '.format(self.isRemote) + cmd + ' >' + self.log_file + ' 2>&1 & echo $! >> ' + f.name
             self.cmd(cmd + ' >' + self.log_file + ' 2>&1 & echo $! >> ' + f.name)
-            pid = int(f.read())
+            # print 'result->'+f.read()
+            # pid = int(f.read())
         debug("P4 switch {} PID is {}.\n".format(self.name, pid))
-        if not self.check_switch_started(pid):
-            error("P4 switch {} did not start correctly.\n".format(self.name))
-            exit(1)
+        # if not self.check_switch_started(pid):
+        #     error("P4 switch {} did not start correctly.\n".format(self.name))
+        #     exit(1)
         info("P4 switch {} has been started.\n".format(self.name))
 
+class RemoteP4Switch(RemoteMixin, P4Switch):
+    def __init__( self, *args, **kwargs ):
+        super( RemoteP4Switch, self ).__init__( *args, **kwargs )    
+
+class RemoteP4RuntimeSwitch(RemoteMixin, P4RuntimeSwitch):
+    def __init__( self, *args, **kwargs ):
+        super( RemoteP4RuntimeSwitch, self ).__init__( *args, **kwargs )
